@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "GTAALL-tool/1.0.0": {
+        "dependencies": {
+          "GtaAll.Core": "1.0.0"
+        },
+        "runtime": {
+          "GTAALL-tool.dll": {}
+        }
+      },
+      "GtaAll.Core/1.0.0": {
+        "runtime": {
+          "GtaAll.Core.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "GTAALL-tool/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "GtaAll.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
