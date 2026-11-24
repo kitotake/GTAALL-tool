@@ -1,0 +1,62 @@
+<Window x:Class="GtaAll.App.WelcomeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Style="{StaticResource AppWindow}"
+        Title="Bienvenue dans GTAALL-tool" Width="660" Height="560"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False">
+  <Grid Margin="16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <StackPanel Grid.Row="0" Margin="2,0,0,12">
+      <TextBlock x:Name="StepText" Style="{StaticResource MutedText}"/>
+      <TextBlock x:Name="TitleText" FontSize="22" FontWeight="SemiBold" Margin="0,2,0,0"/>
+    </StackPanel>
+
+    <Border Grid.Row="1" Style="{StaticResource PanelBorder}" Padding="18">
+      <Grid>
+        <!-- Étape 1 : modules -->
+        <DockPanel x:Name="Step1Panel">
+          <TextBlock DockPanel.Dock="Top" Style="{StaticResource MutedText}" Margin="0,0,0,14"
+                     Text="Cochez les catégories que vous voulez afficher et utiliser. Seuls les modules réellement implémentés peuvent être activés ; les autres sont marqués « À venir »."/>
+          <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="ModulesHost"/>
+          </ScrollViewer>
+        </DockPanel>
+
+        <!-- Étape 2 : ouvrir et indexer -->
+        <StackPanel x:Name="Step2Panel" Visibility="Collapsed">
+          <TextBlock TextWrapping="Wrap" Margin="0,0,0,12"
+                     Text="GTAALL-tool explore les fichiers de votre propre copie du jeu, en lecture seule. Vos fichiers sources ne sont jamais modifiés."/>
+          <TextBlock TextWrapping="Wrap" Margin="0,0,0,8" Text="1.  Cliquez sur « Ouvrir un dossier source… » et choisissez le dossier de votre copie."/>
+          <TextBlock TextWrapping="Wrap" Margin="0,0,0,8" Text="2.  Sélectionnez une archive RPF9 dans la liste de gauche : son en-tête s'affiche à droite."/>
+          <TextBlock TextWrapping="Wrap" Margin="0,0,0,8" Text="3.  Cliquez sur « Indexer l'archive ». Une barre de progression apparaît ; l'opération peut être longue sur de grosses archives et peut être annulée."/>
+          <TextBlock TextWrapping="Wrap" Margin="0,0,0,8" Text="4.  Recherchez par type ou par offset hexadécimal, sélectionnez une entrée puis cliquez sur « Exporter l'entrée »."/>
+          <TextBlock Style="{StaticResource MutedText}" Margin="0,10,0,0"
+                     Text="Les noms de fichiers ne sont pas disponibles : la table des matières RPF9 est chiffrée et GTAALL-tool n'essaie pas de la déchiffrer."/>
+        </StackPanel>
+
+        <!-- Étape 3 : cache et exports -->
+        <StackPanel x:Name="Step3Panel" Visibility="Collapsed">
+          <TextBlock TextWrapping="Wrap" Margin="0,0,0,12"
+                     Text="Les index (cache) et les fichiers exportés sont enregistrés dans un dossier de travail séparé de vos sources."/>
+          <TextBox x:Name="WorkDirBox" IsReadOnly="True" Margin="0,0,0,8"/>
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+            <Button Content="Choisir un autre dossier…" Click="ChangeWorkDir_Click" Margin="0,3,6,3"/>
+            <Button Content="Dossier par défaut" Click="ResetWorkDir_Click"/>
+          </StackPanel>
+          <TextBlock x:Name="WorkDetailText" Style="{StaticResource MutedText}"/>
+          <TextBlock Style="{StaticResource MutedText}" Margin="0,12,0,0"
+                     Text="Vous pourrez modifier ces choix, ou relancer cet assistant, depuis les Paramètres."/>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <DockPanel Grid.Row="2" Margin="0,12,0,0" LastChildFill="False">
+      <Button DockPanel.Dock="Left" Content="Ignorer" Click="Skip_Click" ToolTip="Fermer sans rien changer. L'assistant peut être relancé depuis les Paramètres."/>
+      <Button x:Name="NextBtn" DockPanel.Dock="Right" Style="{StaticResource PrimaryButton}" Content="Suivant" Click="Next_Click"/>
+      <Button x:Name="BackBtn" DockPanel.Dock="Right" Content="Précédent" Click="Back_Click"/>
+    </DockPanel>
+  </Grid>
+</Window>

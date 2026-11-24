@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{2D3EEFC3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GtaAll.Core.SmokeTests", "tests\GtaAll.Core.SmokeTests\GtaAll.Core.SmokeTests.csproj", "{A1B0BB58-D44D-4E40-8E98-F316FC5C8852}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GtaAll.App", "src\GtaAll.App\GtaAll.App.csproj", "{7E3A5C10-4B6D-4F0A-9D21-3C8E5A1B7F42}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7E3A5C10-4B6D-4F0A-9D21-3C8E5A1B7F42}.Debug|Any CPU.ActiveCfg=Debug|Any CPU
+		{7E3A5C10-4B6D-4F0A-9D21-3C8E5A1B7F42}.Debug|Any CPU.Build.0=Debug|Any CPU
+		{7E3A5C10-4B6D-4F0A-9D21-3C8E5A1B7F42}.Release|Any CPU.ActiveCfg=Release|Any CPU
+		{7E3A5C10-4B6D-4F0A-9D21-3C8E5A1B7F42}.Release|Any CPU.Build.0=Release|Any CPU
 		{587938BC-8B24-447F-BF5C-BB944A9C5717}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{587938BC-8B24-447F-BF5C-BB944A9C5717}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{587938BC-8B24-447F-BF5C-BB944A9C5717}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -30,6 +36,7 @@ Global
 		{A1B0BB58-D44D-4E40-8E98-F316FC5C8852}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{7E3A5C10-4B6D-4F0A-9D21-3C8E5A1B7F42} = {C1747ACD-64E2-4CCB-92C5-81D38BAC9FB0}
 		{587938BC-8B24-447F-BF5C-BB944A9C5717} = {C1747ACD-64E2-4CCB-92C5-81D38BAC9FB0}
 		{A1B0BB58-D44D-4E40-8E98-F316FC5C8852} = {2D3EEFC3-BD71-4C65-84B3-D0BE9E291466}
 	EndGlobalSection
