@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\gtaa\\GTAALL-tool\\src\\GtaAll.App\\GtaAll.App.csproj": {}
+    "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.App\\GtaAll.App.csproj": {}
   },
   "projects": {
-    "D:\\gtaa\\GTAALL-tool\\src\\GtaAll.App\\GtaAll.App.csproj": {
+    "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.App\\GtaAll.App.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\gtaa\\GTAALL-tool\\src\\GtaAll.App\\GtaAll.App.csproj",
+        "projectUniqueName": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.App\\GtaAll.App.csproj",
         "projectName": "GTAALL-tool",
-        "projectPath": "D:\\gtaa\\GTAALL-tool\\src\\GtaAll.App\\GtaAll.App.csproj",
+        "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.App\\GtaAll.App.csproj",
         "packagesPath": "C:\\Users\\ahmed\\.nuget\\packages\\",
-        "outputPath": "D:\\gtaa\\GTAALL-tool\\src\\GtaAll.App\\obj\\",
+        "outputPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.App\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ahmed\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -28,8 +28,23 @@
           "net8.0-windows7.0": {
             "targetAlias": "net8.0-windows",
             "projectReferences": {
-              "D:\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj": {
-                "projectPath": "D:\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj"
+              "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Archives\\GtaAll.Archives.csproj": {
+                "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Archives\\GtaAll.Archives.csproj"
+              },
+              "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Audio\\GtaAll.Audio.csproj": {
+                "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Audio\\GtaAll.Audio.csproj"
+              },
+              "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj": {
+                "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj"
+              },
+              "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.StructuredData\\GtaAll.StructuredData.csproj": {
+                "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.StructuredData\\GtaAll.StructuredData.csproj"
+              },
+              "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Textures\\GtaAll.Textures.csproj": {
+                "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Textures\\GtaAll.Textures.csproj"
+              },
+              "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Video\\GtaAll.Video.csproj": {
+                "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Video\\GtaAll.Video.csproj"
               }
             }
           }
@@ -72,14 +87,144 @@
         }
       }
     },
-    "D:\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj": {
+    "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Archives\\GtaAll.Archives.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj",
-        "projectName": "GtaAll.Core",
-        "projectPath": "D:\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj",
+        "projectUniqueName": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Archives\\GtaAll.Archives.csproj",
+        "projectName": "GtaAll.Archives",
+        "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Archives\\GtaAll.Archives.csproj",
         "packagesPath": "C:\\Users\\ahmed\\.nuget\\packages\\",
-        "outputPath": "D:\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\obj\\",
+        "outputPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Archives\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ahmed\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj": {
+                "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.318/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Audio\\GtaAll.Audio.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Audio\\GtaAll.Audio.csproj",
+        "projectName": "GtaAll.Audio",
+        "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Audio\\GtaAll.Audio.csproj",
+        "packagesPath": "C:\\Users\\ahmed\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Audio\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ahmed\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj": {
+                "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.318/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj",
+        "projectName": "GtaAll.Core",
+        "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj",
+        "packagesPath": "C:\\Users\\ahmed\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ahmed\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -96,6 +241,201 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.318/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.StructuredData\\GtaAll.StructuredData.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.StructuredData\\GtaAll.StructuredData.csproj",
+        "projectName": "GtaAll.StructuredData",
+        "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.StructuredData\\GtaAll.StructuredData.csproj",
+        "packagesPath": "C:\\Users\\ahmed\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.StructuredData\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ahmed\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj": {
+                "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.318/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Textures\\GtaAll.Textures.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Textures\\GtaAll.Textures.csproj",
+        "projectName": "GtaAll.Textures",
+        "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Textures\\GtaAll.Textures.csproj",
+        "packagesPath": "C:\\Users\\ahmed\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Textures\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ahmed\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj": {
+                "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.318/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Video\\GtaAll.Video.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Video\\GtaAll.Video.csproj",
+        "projectName": "GtaAll.Video",
+        "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Video\\GtaAll.Video.csproj",
+        "packagesPath": "C:\\Users\\ahmed\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Video\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ahmed\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj": {
+                "projectPath": "C:\\Users\\ahmed\\Pictures\\gtaa\\GTAALL-tool\\src\\GtaAll.Core\\GtaAll.Core.csproj"
+              }
+            }
           }
         },
         "warningProperties": {

@@ -10,3 +10,15 @@ D:\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\refint\GtaAll.Core.dll
 D:\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\GtaAll.Core.pdb
 D:\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\ref\GtaAll.Core.dll
 D:\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\GtaAll.Core.sourcelink.json
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\src\GtaAll.Core\bin\Debug\net8.0\GtaAll.Core.deps.json
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\src\GtaAll.Core\bin\Debug\net8.0\GtaAll.Core.dll
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\src\GtaAll.Core\bin\Debug\net8.0\GtaAll.Core.pdb
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\GtaAll.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\GtaAll.Core.AssemblyInfoInputs.cache
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\GtaAll.Core.AssemblyInfo.cs
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\GtaAll.Core.csproj.CoreCompileInputs.cache
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\GtaAll.Core.sourcelink.json
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\GtaAll.Core.dll
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\refint\GtaAll.Core.dll
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\GtaAll.Core.pdb
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\ref\GtaAll.Core.dll

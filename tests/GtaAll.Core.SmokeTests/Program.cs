@@ -361,6 +361,22 @@ Check(!ModuleCatalog.Get(ModuleId.Models).Implemented, "Modèles : non implémen
     Check(!typeof(ModuleRegistry).Assembly.GetReferencedAssemblies().Any(a => a.Name!.StartsWith("GtaAll.") && a.Name != "GtaAll.Core"), "Core ne dépend d'aucun module");
 }
 
+// ---- RPF9 sans flux zlib (cas réel : petite archive aux données non zlib) ----
+{
+    var dz = Path.Combine(tmp, "nozlib"); Directory.CreateDirectory(dz);
+    var raw = new byte[0x400 + 4096]; "9FPR"u8.CopyTo(raw.AsSpan(0)); BitConverter.GetBytes(0x400u).CopyTo(raw, 4);
+    var rnz = new Random(3); for (int i = 0x40; i < raw.Length; i++) { byte x; do x = (byte)rnz.Next(256); while (x == 0x78); raw[i] = x; }
+    var pz = Path.Combine(dz, "enc.rpf"); File.WriteAllBytes(pz, raw);
+    var iz = Rpf9Indexer.Build(pz, null, default);
+    Check(iz.Entries.Count == 0 && iz.Warnings.Any(w => w.Contains("chiffré ou compressé autrement")), "RPF9 données aléatoires : 0 entrée + avertissement explicite (chiffré/autre compression)");
+    var padded = (byte[])raw.Clone(); Array.Clear(padded, 0x400 + 600, 2700);
+    var pz3 = Path.Combine(dz, "padded.rpf"); File.WriteAllBytes(pz3, padded);
+    Check(Rpf9Indexer.Build(pz3, null, default).Warnings.Any(w => w.Contains("chiffré ou compressé autrement")), "RPF9 données aléatoires + remplissage de zéros : toujours qualifié chiffré/autre compression");
+    var zeros = new byte[0x400 + 4096]; "9FPR"u8.CopyTo(zeros.AsSpan(0)); BitConverter.GetBytes(0x400u).CopyTo(zeros, 4);
+    var pz2 = Path.Combine(dz, "zero.rpf"); File.WriteAllBytes(pz2, zeros);
+    Check(Rpf9Indexer.Build(pz2, null, default).Warnings.Any(w => w.Contains("sans compression zlib")), "RPF9 données non aléatoires : avertissement 'stocké sans compression zlib'");
+}
+
 Directory.Delete(tmp, true);
 Console.WriteLine(fails == 0 ? "TOUS LES TESTS PASSENT" : $"{fails} ECHEC(S)");
 return fails;

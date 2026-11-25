@@ -3,7 +3,7 @@
    Si PowerShell refuse : Set-ExecutionPolicy -Scope Process Bypass
 3. cd D:\gtaa\GTAALL-tool
    dotnet build GtaAllTool.sln
-   dotnet run --project tests/GtaAll.Core.SmokeTests      (attendu : TOUS LES TESTS PASSENT, 94 verifications)
+   dotnet run --project tests/GtaAll.Core.SmokeTests      (attendu : TOUS LES TESTS PASSENT, 97 verifications)
 4. Non compile cote Claude : GtaAll.App (WPF, Windows seulement). Si une erreur apparait, envoie-la.
 Rien n'est pousse sur GitHub : fais toi-meme git add / commit / push apres verification.
 

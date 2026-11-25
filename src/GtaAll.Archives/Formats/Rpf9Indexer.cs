@@ -85,8 +85,41 @@ public static class Rpf9Indexer
             }
         }
         progress?.Report(new IndexProgress(length, length, idx.StreamCount, idx.Entries.Count));
+        if (idx.StreamCount == 0 && length > header.TocEnd)
+        {
+            double e = DataEntropy(h, header.TocEnd, length);
+            idx.Warnings.Add(e >= 7.5
+                ? $"Aucun flux zlib trouvé dans les {length - header.TocEnd:N0} octets de données (entropie {e:0.00}/8) : contenu probablement chiffré ou compressé autrement. L'indexation par flux zlib ne peut rien en tirer."
+                : $"Aucun flux zlib trouvé dans les {length - header.TocEnd:N0} octets de données (entropie {e:0.00}/8) : contenu probablement stocké sans compression zlib ; il n'est pas indexé.");
+        }
         return idx;
     }
 
     private static long Align16(long v) => (v + 15) & ~15L;
+
+    /// <summary>Entropie de Shannon (0–8 bits/octet) d'un échantillon des données ; sert uniquement à qualifier un avertissement.</summary>
+    private static double DataEntropy(Microsoft.Win32.SafeHandles.SafeFileHandle h, long from, long length)
+    {
+        int n = (int)Math.Min(1 << 20, length - from);
+        if (n <= 0) return 0;
+        var b = new byte[n];
+        int got = RandomAccess.Read(h, b, from);
+        if (got <= 0) return 0;
+        var c = new long[256];
+        long total = 0;
+        // les plages de zéros (remplissage d'alignement) ne disent rien du contenu : on les ignore
+        for (int i = 0; i < got;)
+        {
+            if (b[i] == 0)
+            {
+                int j = i; while (j < got && b[j] == 0) j++;
+                if (j - i >= 32) { i = j; continue; }
+            }
+            c[b[i]]++; total++; i++;
+        }
+        if (total == 0) return 0;
+        double ent = 0;
+        foreach (var v in c) if (v > 0) { double p = (double)v / total; ent -= p * Math.Log2(p); }
+        return ent;
+    }
 }

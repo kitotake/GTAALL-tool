@@ -17,3 +17,9 @@ D:\gtaa\GTAALL-tool\tests\GtaAll.Core.SmokeTests\obj\Debug\net8.0\refint\GtaAll.
 D:\gtaa\GTAALL-tool\tests\GtaAll.Core.SmokeTests\obj\Debug\net8.0\GtaAll.Core.SmokeTests.pdb
 D:\gtaa\GTAALL-tool\tests\GtaAll.Core.SmokeTests\obj\Debug\net8.0\GtaAll.Core.SmokeTests.genruntimeconfig.cache
 D:\gtaa\GTAALL-tool\tests\GtaAll.Core.SmokeTests\obj\Debug\net8.0\ref\GtaAll.Core.SmokeTests.dll
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\tests\GtaAll.Core.SmokeTests\obj\Debug\net8.0\GtaAll.Core.SmokeTests.csproj.AssemblyReference.cache
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\tests\GtaAll.Core.SmokeTests\obj\Debug\net8.0\GtaAll.Core.SmokeTests.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\tests\GtaAll.Core.SmokeTests\obj\Debug\net8.0\GtaAll.Core.SmokeTests.AssemblyInfoInputs.cache
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\tests\GtaAll.Core.SmokeTests\obj\Debug\net8.0\GtaAll.Core.SmokeTests.AssemblyInfo.cs
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\tests\GtaAll.Core.SmokeTests\obj\Debug\net8.0\GtaAll.Core.SmokeTests.csproj.CoreCompileInputs.cache
+C:\Users\ahmed\Pictures\gtaa\GTAALL-tool\tests\GtaAll.Core.SmokeTests\obj\Debug\net8.0\GtaAll.Core.SmokeTests.sourcelink.json
