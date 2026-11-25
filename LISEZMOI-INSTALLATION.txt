@@ -1,11 +1,14 @@
-INSTALLATION
-1. Dezippe ce dossier.
-2. Copie le dossier "GTAALL-tool" par-dessus ton depot D:\gtaa\GTAALL-tool
-   (accepte de remplacer les fichiers existants).
-   Fichiers remplaces : README.md, MainWindow.xaml.cs, ModuleCatalog.cs, SourceScanner.cs, tests\...\Program.cs
-   Fichiers nouveaux  : FileInspection.cs, TtpfInspector.cs, THIRD_PARTY_NOTICES.md, docs\SOUS-PROJETS.md
-3. Dans D:\gtaa\GTAALL-tool :
-     dotnet build GtaAllTool.sln
-     dotnet run --project tests/GtaAll.Core.SmokeTests     (doit afficher TOUS LES TESTS PASSENT)
-     dotnet run --project src/GtaAll.App
-4. Les modifications de MainWindow.xaml.cs ne sont pas compilees cote Claude (WPF = Windows seulement).
+1. Dezippe. Ouvre PowerShell dans le dossier dezippe.
+2. .\appliquer.ps1 -Depot "D:\gtaa\GTAALL-tool"      (supprime les anciens fichiers deplaces, copie les nouveaux)
+   Si PowerShell refuse : Set-ExecutionPolicy -Scope Process Bypass
+3. cd D:\gtaa\GTAALL-tool
+   dotnet build GtaAllTool.sln
+   dotnet run --project tests/GtaAll.Core.SmokeTests      (attendu : TOUS LES TESTS PASSENT, 94 verifications)
+4. Non compile cote Claude : GtaAll.App (WPF, Windows seulement). Si une erreur apparait, envoie-la.
+Rien n'est pousse sur GitHub : fais toi-meme git add / commit / push apres verification.
+
+OUTIL DE DIAGNOSTIC (rapport texte a copier-coller, lecture seule, n'ecrit rien) :
+  dotnet run --project src\GtaAll.Diag -- "D:\chemin\fichier.ttpf"
+  dotnet run --project src\GtaAll.Diag -- "D:\chemin\fichier.rpf" --rapide     (en-tete seulement, instantane)
+  dotnet run --project src\GtaAll.Diag -- "D:\chemin\fichier.rpf"              (avec indexation : long sur un gros .rpf)
+  dotnet run --project src\GtaAll.Diag -- "D:\dossier"                         (resume par type + un exemple de chaque)

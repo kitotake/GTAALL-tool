@@ -8,5 +8,12 @@
     <RootNamespace>GtaAll.App</RootNamespace>
     <AssemblyName>GTAALL-tool</AssemblyName>
   </PropertyGroup>
-  <ItemGroup><ProjectReference Include="..\GtaAll.Core\GtaAll.Core.csproj" /></ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GtaAll.Core\GtaAll.Core.csproj" />
+    <ProjectReference Include="..\GtaAll.Archives\GtaAll.Archives.csproj" />
+    <ProjectReference Include="..\GtaAll.Textures\GtaAll.Textures.csproj" />
+    <ProjectReference Include="..\GtaAll.Audio\GtaAll.Audio.csproj" />
+    <ProjectReference Include="..\GtaAll.Video\GtaAll.Video.csproj" />
+    <ProjectReference Include="..\GtaAll.StructuredData\GtaAll.StructuredData.csproj" />
+  </ItemGroup>
 </Project>

@@ -4,7 +4,12 @@ using GtaAll.Core.Formats;
 using GtaAll.Core.Search;
 using GtaAll.Core.Appearance;
 using GtaAll.Core.Settings;
+using GtaAll.Core.Modules;
 using GtaAll.Core.Sources;
+
+// Composition : Core ne connaît aucun module, le registre est rempli ici (comme le fait l'application).
+foreach (var m in new IFormatModule[] { new Rpf9Module(), new TtpfModule(), new AudioModule(), new VideoModule(), new StructuredDataModule() })
+    ModuleRegistry.Default.Register(m);
 
 int fails = 0;
 void Check(bool ok, string name) { Console.WriteLine($"{(ok ? "OK  " : "FAIL")} {name}"); if (!ok) fails++; }
@@ -322,6 +327,48 @@ Check(!ModuleCatalog.Get(ModuleId.Models).Implemented, "Modèles : non implémen
     }
 }
 
+// ---- Architecture : registre, journal, accès fichiers ----
+{
+    var reg = new ModuleRegistry();
+    reg.Register(new VideoModule()); reg.Register(new VideoModule());
+    Check(reg.Modules.Count == 1, "registre : enregistrement idempotent par identifiant");
+    bool refused = false;
+    try { reg.Register(new ConflictModule()); } catch (InvalidOperationException) { refused = true; }
+    Check(refused && reg.Modules.Count == 1, "registre : conflit d'extension refusé sans remplacement silencieux");
+    Check(reg.ForExtension(".BK2") is VideoModule && reg.ForExtension(".xml") == null, "registre : extensions insensibles à la casse, inconnues ignorées");
+    var dscan = Path.Combine(tmp, "reg"); Directory.CreateDirectory(dscan);
+    File.WriteAllText(Path.Combine(dscan, "a.xml"), "<r/>"); File.WriteAllBytes(Path.Combine(dscan, "b.bk2"), new byte[8]);
+    Check(SourceScanner.Scan(dscan, default, reg).Count == 1, "scanner : n'expose que les formats des modules enregistrés");
+    var empty = new ModuleRegistry();
+    Check(SourceScanner.Scan(dscan, default, empty).Count == 0, "scanner : registre vide -> aucun fichier reconnu");
+    Check(FileInspector.Inspect(new SourceFile("x", "x", 0, SourceType.Video, ""), empty) == null, "inspecteur : sans module -> null");
+
+    var logDir = Path.Combine(tmp, "logs"); var fl = new GtaAll.Core.Logging.FileLog(logDir);
+    fl.Write(GtaAll.Core.Logging.LogLevel.Error, "test", "ligne1\nligne2", new IOException("boum"));
+    var logTxt = File.ReadAllText(fl.PathForToday);
+    Check(logTxt.Contains("ERROR") && logTxt.Contains("boum") && logTxt.Split('\n', StringSplitOptions.RemoveEmptyEntries).Length == 1, "journal : une ligne par événement, erreur incluse");
+    var badLog = new GtaAll.Core.Logging.FileLog(Path.Combine(tmp, "reg", "a.xml", "impossible"));
+    bool logThrew = false; try { badLog.Write(GtaAll.Core.Logging.LogLevel.Info, "t", "m"); } catch { logThrew = true; }
+    Check(!logThrew, "journal : une erreur d'E/S n'interrompt jamais l'application");
+    var fbad = new SourceFile(Path.Combine(tmp, "absent.bk2"), "absent.bk2", 0, SourceType.Video, "");
+    var rb = FileInspector.Inspect(fbad, reg);
+    Check(rb != null && rb.Notes.Any(x => x.Contains("illisible")), "inspecteur : fichier disparu -> note, pas d'exception");
+
+    bool outsideRefused = false;
+    try { GtaAll.Core.IO.SafeFileAccess.EnsureOutputOutsideSources(dscan, Path.Combine(dscan, "out")); } catch (InvalidOperationException) { outsideRefused = true; }
+    GtaAll.Core.IO.SafeFileAccess.EnsureOutputOutsideSources(dscan, Path.Combine(tmp, "ailleurs"));
+    Check(outsideRefused, "SafeFileAccess : sortie dans les sources refusée, hors sources acceptée");
+    Check(!typeof(ModuleRegistry).Assembly.GetReferencedAssemblies().Any(a => a.Name!.StartsWith("GtaAll.") && a.Name != "GtaAll.Core"), "Core ne dépend d'aucun module");
+}
+
 Directory.Delete(tmp, true);
 Console.WriteLine(fails == 0 ? "TOUS LES TESTS PASSENT" : $"{fails} ECHEC(S)");
 return fails;
+
+sealed class ConflictModule : IFormatModule
+{
+    public ModuleId Id => ModuleId.Models;
+    public IReadOnlyCollection<string> Extensions { get; } = new[] { ".bk2" };
+    public SourceClassification Classify(string path, string extension) => new(SourceType.Video, "");
+    public InspectionResult? Inspect(SourceFile file) => null;
+}

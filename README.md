@@ -75,6 +75,10 @@ La solution contient 3 projets : `GtaAll.Core`, `GtaAll.App` (WPF), `GtaAll.Core
 ## Usage légitime
 Travaillez uniquement avec vos propres fichiers. Ne redistribuez pas les ressources extraites.
 
+## Architecture
+
+Voir `docs/ARCHITECTURE.md` (projets par module, registre `IFormatModule`, journal).
+
 ## Sous-projets
 
 Voir `docs/SOUS-PROJETS.md` (état de vérification des 19 entrées de `sous-tool/`) et `THIRD_PARTY_NOTICES.md`.

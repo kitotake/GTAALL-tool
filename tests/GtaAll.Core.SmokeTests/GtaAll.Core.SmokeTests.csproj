@@ -5,5 +5,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-  <ItemGroup><ProjectReference Include="..\..\src\GtaAll.Core\GtaAll.Core.csproj" /></ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\GtaAll.Core\GtaAll.Core.csproj" />
+    <ProjectReference Include="..\..\src\GtaAll.Archives\GtaAll.Archives.csproj" />
+    <ProjectReference Include="..\..\src\GtaAll.Textures\GtaAll.Textures.csproj" />
+    <ProjectReference Include="..\..\src\GtaAll.Audio\GtaAll.Audio.csproj" />
+    <ProjectReference Include="..\..\src\GtaAll.Video\GtaAll.Video.csproj" />
+    <ProjectReference Include="..\..\src\GtaAll.StructuredData\GtaAll.StructuredData.csproj" />
+  </ItemGroup>
 </Project>
