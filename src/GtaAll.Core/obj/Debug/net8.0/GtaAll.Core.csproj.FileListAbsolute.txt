@@ -9,3 +9,4 @@ D:\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\GtaAll.Core.dll
 D:\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\refint\GtaAll.Core.dll
 D:\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\GtaAll.Core.pdb
 D:\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\ref\GtaAll.Core.dll
+D:\gtaa\GTAALL-tool\src\GtaAll.Core\obj\Debug\net8.0\GtaAll.Core.sourcelink.json

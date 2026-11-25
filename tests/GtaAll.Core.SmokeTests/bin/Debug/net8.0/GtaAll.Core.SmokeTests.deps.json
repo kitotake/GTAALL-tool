@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "GtaAll.Core.SmokeTests/1.0.0": {
+        "dependencies": {
+          "GtaAll.Core": "1.0.0"
+        },
+        "runtime": {
+          "GtaAll.Core.SmokeTests.dll": {}
+        }
+      },
+      "GtaAll.Core/1.0.0": {
+        "runtime": {
+          "GtaAll.Core.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "GtaAll.Core.SmokeTests/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "GtaAll.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

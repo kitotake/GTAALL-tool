@@ -61,7 +61,7 @@ internal static class ThemeManager
                 break;
             case LinearBrushSpec l:
                 var g = new LinearGradientBrush { StartPoint = new Point(l.X1, l.Y1), EndPoint = new Point(l.X2, l.Y2) };
-                foreach (var st in l.Stops) g.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(st.Argb), st.Offset));
+                foreach (var st in l.Stops) g.GradientStops.Add(new System.Windows.Media.GradientStop((Color)ColorConverter.ConvertFromString(st.Argb), st.Offset));
                 b = g;
                 break;
             default:

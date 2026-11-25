@@ -21,3 +21,11 @@ D:\gtaa\GTAALL-tool\src\GtaAll.App\obj\Debug\net8.0-windows\refint\GTAALL-tool.d
 D:\gtaa\GTAALL-tool\src\GtaAll.App\obj\Debug\net8.0-windows\GTAALL-tool.pdb
 D:\gtaa\GTAALL-tool\src\GtaAll.App\obj\Debug\net8.0-windows\GtaAll.App.genruntimeconfig.cache
 D:\gtaa\GTAALL-tool\src\GtaAll.App\obj\Debug\net8.0-windows\ref\GTAALL-tool.dll
+D:\gtaa\GTAALL-tool\src\GtaAll.App\obj\Debug\net8.0-windows\SettingsWindow.baml
+D:\gtaa\GTAALL-tool\src\GtaAll.App\obj\Debug\net8.0-windows\Themes\Controls.baml
+D:\gtaa\GTAALL-tool\src\GtaAll.App\obj\Debug\net8.0-windows\Themes\Dark.baml
+D:\gtaa\GTAALL-tool\src\GtaAll.App\obj\Debug\net8.0-windows\WelcomeWindow.baml
+D:\gtaa\GTAALL-tool\src\GtaAll.App\obj\Debug\net8.0-windows\App.baml
+D:\gtaa\GTAALL-tool\src\GtaAll.App\obj\Debug\net8.0-windows\SettingsWindow.g.cs
+D:\gtaa\GTAALL-tool\src\GtaAll.App\obj\Debug\net8.0-windows\WelcomeWindow.g.cs
+D:\gtaa\GTAALL-tool\src\GtaAll.App\obj\Debug\net8.0-windows\GtaAll.App.sourcelink.json
