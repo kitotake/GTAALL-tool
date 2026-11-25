@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GtaAll.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+490d7416340e9c8b3f19f9b87ee5340b394400fc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1b57c3421cb9b0e6b4c8d6760d555fe79b31a632")]
 [assembly: System.Reflection.AssemblyProductAttribute("GtaAll.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GtaAll.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -8,15 +8,75 @@
     ".NETCoreApp,Version=v8.0": {
       "GtaAll.Core.SmokeTests/1.0.0": {
         "dependencies": {
-          "GtaAll.Core": "1.0.0"
+          "GtaAll.Archives": "1.0.0",
+          "GtaAll.Audio": "1.0.0",
+          "GtaAll.Core": "1.0.0",
+          "GtaAll.StructuredData": "1.0.0",
+          "GtaAll.Textures": "1.0.0",
+          "GtaAll.Video": "1.0.0"
         },
         "runtime": {
           "GtaAll.Core.SmokeTests.dll": {}
         }
       },
+      "GtaAll.Archives/1.0.0": {
+        "dependencies": {
+          "GtaAll.Core": "1.0.0"
+        },
+        "runtime": {
+          "GtaAll.Archives.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "GtaAll.Audio/1.0.0": {
+        "dependencies": {
+          "GtaAll.Core": "1.0.0"
+        },
+        "runtime": {
+          "GtaAll.Audio.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
       "GtaAll.Core/1.0.0": {
         "runtime": {
           "GtaAll.Core.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "GtaAll.StructuredData/1.0.0": {
+        "dependencies": {
+          "GtaAll.Core": "1.0.0"
+        },
+        "runtime": {
+          "GtaAll.StructuredData.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "GtaAll.Textures/1.0.0": {
+        "dependencies": {
+          "GtaAll.Core": "1.0.0"
+        },
+        "runtime": {
+          "GtaAll.Textures.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "GtaAll.Video/1.0.0": {
+        "dependencies": {
+          "GtaAll.Core": "1.0.0"
+        },
+        "runtime": {
+          "GtaAll.Video.dll": {
             "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
           }
@@ -30,7 +90,32 @@
       "serviceable": false,
       "sha512": ""
     },
+    "GtaAll.Archives/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "GtaAll.Audio/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
     "GtaAll.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "GtaAll.StructuredData/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "GtaAll.Textures/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "GtaAll.Video/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
