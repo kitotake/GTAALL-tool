@@ -101,8 +101,10 @@ foreach (var t in cat.Themes)
     bool ok = true; string why = "";
     void Min(string n, string fg, string bgc, double min) { var r = ColorMath.Contrast(C(fg), C(bgc)); if (r < min) { ok = false; why += $" {n}={r:0.0}"; } }
     foreach (var bgc in new[] { pal.Bg, pal.Panel, pal.Panel2, pal.Input }) { Min("texte/" + bgc, pal.Text, bgc, 7); Min("muted/" + bgc, pal.Muted, bgc, 4.5); }
-    foreach (var bgc in new[] { pal.Panel, pal.Panel2, pal.Input }) { Min("accent", pal.Accent, bgc, 3); Min("erreur", pal.Error, bgc, 3); Min("alerte", pal.Warn, bgc, 3); Min("ok", pal.Ok, bgc, 3); }
+    foreach (var bgc in new[] { pal.Bg, pal.Panel, pal.Panel2, pal.Input }) { Min("accent", pal.Accent, bgc, 3); Min("erreur", pal.Error, bgc, 3); Min("alerte", pal.Warn, bgc, 3); Min("ok", pal.Ok, bgc, 3); }
     Min("surAccent", pal.OnAccent, pal.Accent, 4.5); Min("selection", pal.OnSelection, pal.AccentDim, 7);
+    Min("texte/survol", pal.Text, pal.Hover, 4.5); Min("muted/survol", pal.Muted, pal.Hover, 4.5);
+    Min("texte/ligne sélectionnée", pal.Text, pal.AccentDim, 4.5); Min("texte/ligne alternée", pal.Text, pal.PanelAlt, 7);
     Check(ok, $"contraste du thème {t.Key}{why}");
 }
 
@@ -144,6 +146,21 @@ File.WriteAllText(oldPath, "{\"FirstRunCompleted\":true,\"Appearance\":{\"ThemeK
 var oldS2 = new SettingsStore(oldPath).Load();
 Check(oldS2.Appearance.ThemeKey == "white" && oldS2.Appearance.StyleKey == "standard" && oldS2.Appearance.AccentHex == "#4C8DF6" && oldS2.StartupNotices.Count == 1, "style inconnu dans le fichier : repli Standard + message, thème et accent conservés");
 
+// Liste de modules invalide (valeur inconnue venant d'une version plus récente ou d'une édition manuelle, négative, doublon,
+// non implémentée, ou null) : le chargement ne doit jamais échouer ni perdre le reste des préférences.
+File.WriteAllText(oldPath, "{\"FirstRunCompleted\":true,\"EnabledModules\":[0,99,-5,0,2],\"WorkDirectory\":\"C:\\\\w\"}");
+bool modulesRobust;
+try { var badMods = new SettingsStore(oldPath).Load(); modulesRobust = badMods.FirstRunCompleted && badMods.WorkDirectory == "C:\\w" && badMods.EnabledModules.SequenceEqual(new[] { ModuleId.Rpf9 }); }
+catch (Exception) { modulesRobust = false; }
+Check(modulesRobust, "settings.json avec modules inconnus/doublons : chargé sans erreur, préférences conservées");
+File.WriteAllText(oldPath, "{\"FirstRunCompleted\":true,\"EnabledModules\":null}");
+bool nullRobust;
+try { var nullMods = new SettingsStore(oldPath).Load(); nullRobust = nullMods.FirstRunCompleted && nullMods.EnabledModules.SequenceEqual(new[] { ModuleId.Rpf9 }); }
+catch (Exception) { nullRobust = false; }
+Check(nullRobust, "settings.json avec liste de modules null : valeur par défaut, sans erreur");
+File.WriteAllText(oldPath, "{\"FirstRunCompleted\":true,\"EnabledModules\":[]}");
+Check(new SettingsStore(oldPath).Load().EnabledModules.Count == 0, "liste de modules vide : respectée (aucun module activé)");
+
 // Apparence précédente
 var hist = new AppSettings();
 hist.CommitAppearance(new AppearanceSettings { ThemeKey = "white" });
@@ -152,6 +169,25 @@ Check(hist.SwapWithPreviousAppearance() && hist.Appearance.ThemeKey == "charcoal
 Check(!new AppSettings().SwapWithPreviousAppearance(), "pas de précédente : retour impossible, sans erreur");
 var same = new AppSettings(); same.CommitAppearance(new AppearanceSettings());
 Check(same.PreviousAppearance == null, "pas de précédente si rien n'a changé");
+
+// Enregistrement transactionnel (fenêtre Paramètres) : si l'écriture échoue, les réglages en mémoire reviennent à leur état d'origine,
+// sinon « Annuler » appliquerait ensuite des réglages qui n'ont jamais été enregistrés.
+var okPath = Path.Combine(tmp, "ok", "settings.json");
+var okStore = new SettingsStore(okPath); var okSettings = new AppSettings();
+okStore.ApplyAndSave(okSettings, cfg => { cfg.WorkDirectory = "C:\\w"; cfg.CommitAppearance(new AppearanceSettings { ThemeKey = "white", AccentHex = "#4C8DF6" }); });
+var okBack = okStore.Load();
+Check(okBack.WorkDirectory == "C:\\w" && okBack.Appearance.ThemeKey == "white" && okBack.Appearance.AccentHex == "#4C8DF6" && okBack.PreviousAppearance?.ThemeKey == "charcoal-teal",
+      "ApplyAndSave : changements enregistrés puis relus");
+var blocker = Path.Combine(tmp, "blocker"); File.WriteAllText(blocker, "x");      // un fichier là où il faudrait un dossier : l'écriture échoue
+var failStore = new SettingsStore(Path.Combine(blocker, "settings.json"));
+var live = new AppSettings { WorkDirectory = "C:\\avant" };
+bool threw = false;
+try { failStore.ApplyAndSave(live, cfg => { cfg.WorkDirectory = "C:\\apres"; cfg.EnabledModules = new(); cfg.CommitAppearance(new AppearanceSettings { ThemeKey = "white" }); }); }
+catch (IOException) { threw = true; }
+catch (UnauthorizedAccessException) { threw = true; }
+Check(threw && live.WorkDirectory == "C:\\avant" && live.EnabledModules.SequenceEqual(new[] { ModuleId.Rpf9 })
+      && live.Appearance.ThemeKey == "charcoal-teal" && live.PreviousAppearance == null,
+      "ApplyAndSave : écriture impossible -> réglages en mémoire rétablis, erreur propagée");
 
 // Résolution : clés, thèmes et styles
 bool keysOk = true;

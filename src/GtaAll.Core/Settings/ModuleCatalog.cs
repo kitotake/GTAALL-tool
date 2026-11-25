@@ -2,6 +2,10 @@ using GtaAll.Core.Sources;
 
 namespace GtaAll.Core.Settings;
 
+/// <summary>
+/// Identifiants de modules. Les valeurs sont enregistrées EN NOMBRE dans settings.json : n'ajouter qu'à la fin,
+/// ne jamais réordonner ni renuméroter, sinon les anciens fichiers activeraient un autre module.
+/// </summary>
 public enum ModuleId { Rpf9, Ttpf, Audio, Video, Models, Structured }
 
 /// <summary>Un module fonctionnel. <see cref="Implemented"/> ne passe à true que lorsque le code existe réellement.</summary>

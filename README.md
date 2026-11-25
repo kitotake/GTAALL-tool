@@ -16,9 +16,11 @@ La solution contient 3 projets : `GtaAll.Core`, `GtaAll.App` (WPF), `GtaAll.Core
 ## État de la vérification
 | Élément | État |
 |---|---|
-| `GtaAll.Core` + tests (56 vérifications) | Compilé et exécuté : tout passe (sous Linux, .NET 8) |
-| `GtaAll.App` (WPF, thème, assistant, paramètres) | **Jamais compilé ni lancé** : l'environnement de développement n'a pas le SDK Windows Desktop. Vérifié seulement : XAML bien formé, gestionnaires et ressources référencés présents, aucune erreur de syntaxe C#. Des erreurs de compilation ou d'affichage restent possibles : à signaler. |
+| `GtaAll.Core` + tests (61 vérifications) | **Compilé et exécuté** : 0 avertissement, 0 erreur, 61/61 OK (Linux, SDK .NET 8.0.134, restauration hors ligne) |
+| `GtaAll.App` (WPF, thème, assistant, paramètres) | **Compilé sous Windows** (poste du propriétaire, après correction de `CS0104` `GradientStop` et de `using System.IO` manquants) : les artefacts versionnés (`9f7b82c`) contiennent un DLL avec `SettingsWindow`, `WelcomeWindow`, `ThemeManager`, et le BAML de tous les écrans et thèmes. **Non reproduit dans l'environnement d'analyse** (Linux : `NU1101 Microsoft.WindowsDesktop.App.Ref`, NuGet inaccessible). **Jamais lancé ni vérifié visuellement** à notre connaissance. |
+| `GtaAll.App` : contrôles statiques | Analyse statique, **pas une compilation WPF** : XAML bien formé ; toutes les clés `StaticResource`/`DynamicResource` résolues ; gestionnaires et `x:Name` cohérents avec les codes-behind ; le code-behind, compilé contre des types WPF *simulés*, ne montre plus d'erreur (ce contrôle avait manqué `System.IO`, que seule la compilation Windows a révélée : il est peu fiable). |
 | Test sur de vraies archives du jeu | Jamais fait (archives synthétiques uniquement) |
+| Lancement et contrôle visuel (accueil, principal, Paramètres) | **Jamais fait** : à faire sous Windows (voir ci-dessous) |
 
 ## Fonctions
 | Fonction | État |
@@ -28,7 +30,7 @@ La solution contient 3 projets : `GtaAll.Core`, `GtaAll.App` (WPF), `GtaAll.Core
 | Section Apparence (Paramètres) : thème, style, accent, transparence, suivi de Windows, mode sans transparence, retour à l'apparence précédente | Logique testée (Core) ; fenêtre non lancée |
 | Assistant de bienvenue au premier démarrage (3 étapes : modules, ouverture/indexation, cache et exports), ignorable | Écrit, non lancé |
 | Paramètres : modules, dossier cache/export, relance de l'assistant | Écrit, non lancé |
-| Préférences locales (`%APPDATA%\GTAALL-tool\settings.json`) | Implémenté et testé (Core) |
+| Préférences locales (`%APPDATA%\GTAALL-tool\settings.json`) | Implémenté et testé (Core), y compris listes de modules inconnues/`null`/doublons (qui faisaient planter le chargement) et enregistrement transactionnel (`ApplyAndSave` : écriture impossible → réglages en mémoire rétablis) |
 | Modules affichés selon les préférences ; modules non implémentés marqués « À venir », case désactivée | Logique testée (Core) ; interface non lancée |
 | Dossier cache/export par défaut `%LOCALAPPDATA%\GTAALL-tool\work` ; refusé s'il est dans les sources | Implémenté et testé (Core) |
 | Liste des fichiers reconnus, filtre, en-tête RPF9 avec certitude, indexation (progression, annulation), cache d'index, recherche, export brut | Implémenté ; Core testé |
@@ -42,6 +44,12 @@ La solution contient 3 projets : `GtaAll.Core`, `GtaAll.App` (WPF), `GtaAll.Core
 - **Retrait de la bêta** : thème et style sont enregistrés sous forme de clés texte. Si le style n'existe plus, il est remplacé par Standard au chargement (message affiché), le reste des préférences est conservé.
 - **Retour en arrière** : aperçu en direct dans les Paramètres, « Annuler » (ou fermer) restaure l'apparence enregistrée ; « Revenir à l'apparence précédente » recharge la précédente.
 - **Suivre Windows** : sombre → thème sombre choisi, clair → Blanc ; réévalué quand Windows change (événement système, non testé ici).
+
+## À vérifier sous Windows (non fait)
+1. `dotnet build GtaAllTool.sln` : recompiler avec ces correctifs (ils n'ont été compilés que sous Linux pour le cœur).
+2. Lancer l'application : accueil (assistant), fenêtre principale, Paramètres.
+3. Paramètres : changer thème/style/accent, **Annuler** et **croix** doivent restaurer l'apparence enregistrée ; Liquid Glass désactivé par défaut, marqué BÊTA, grisé avec Noir OLED ; Mica sur Windows 11 22H2+, message de repli ailleurs.
+4. `dotnet run --project tests/GtaAll.Core.SmokeTests` : doit afficher `TOUS LES TESTS PASSENT`.
 
 ## Modules
 | Module | État |
@@ -57,7 +65,7 @@ La solution contient 3 projets : `GtaAll.Core`, `GtaAll.App` (WPF), `GtaAll.Core
 
 ## Architecture
 - `src/GtaAll.Core` : `Formats`, `Sources`, `Search`, `Settings` (catalogue de modules, préférences).
-- `src/GtaAll.App` : `MainWindow`, `WelcomeWindow`, `SettingsWindow`, `ModuleUi`, `Themes/Dark.xaml`.
+- `src/GtaAll.App` : `MainWindow`, `WelcomeWindow`, `SettingsWindow`, `ModuleUi`, `ThemeManager`, `WindowBackdrop`, `SystemInfo`, `Themes/Controls.xaml`. `Themes/Dark.xaml` est l'ancien thème (couleurs d'origine), **plus référencé** : à supprimer après une première compilation Windows réussie.
 
 ## Usage légitime
 Travaillez uniquement avec vos propres fichiers. Ne redistribuez pas les ressources extraites.

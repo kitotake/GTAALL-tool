@@ -1,0 +1,7 @@
+# Sorties de build et fichiers d'IDE : ne pas versionner
+bin/
+obj/
+.vs/
+*.user
+*.suo
+TestResults/

@@ -36,6 +36,20 @@ public sealed class AppSettings
         return true;
     }
 
+    /// <summary>Copie des valeurs que la fenêtre Paramètres modifie, pour annuler proprement si l'enregistrement échoue.</summary>
+    public sealed record Snapshot(List<ModuleId> EnabledModules, string? WorkDirectory, AppearanceSettings Appearance, AppearanceSettings? PreviousAppearance);
+
+    public Snapshot TakeSnapshot() =>
+        new(new List<ModuleId>(EnabledModules), WorkDirectory, Appearance.Clone(), PreviousAppearance?.Clone());
+
+    public void Restore(Snapshot s)
+    {
+        EnabledModules = new List<ModuleId>(s.EnabledModules);
+        WorkDirectory = s.WorkDirectory;
+        Appearance = s.Appearance.Clone();
+        PreviousAppearance = s.PreviousAppearance?.Clone();
+    }
+
     public static string DefaultWorkDirectory() =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GTAALL-tool", "work");
 
@@ -45,10 +59,15 @@ public sealed class AppSettings
     /// <summary>Activé = implémenté ET choisi par l'utilisateur.</summary>
     public bool IsEnabled(ModuleId id) => ModuleCatalog.Get(id).Implemented && EnabledModules.Contains(id);
 
-    /// <summary>Retire les modules inconnus ou non implémentés ; garantit une liste sans doublons.</summary>
+    /// <summary>
+    /// Retire les modules inconnus ou non implémentés ; garantit une liste sans doublons. Ne lève jamais d'exception :
+    /// un fichier écrit par une version plus récente ou édité à la main peut contenir une valeur hors énumération ou null.
+    /// </summary>
     public void Normalize()
     {
-        EnabledModules = EnabledModules.Distinct().Where(m => ModuleCatalog.Get(m).Implemented).ToList();
+        EnabledModules = EnabledModules == null
+            ? new List<ModuleId> { ModuleId.Rpf9 }   // liste absente : valeur par défaut (une liste vide, elle, est respectée)
+            : EnabledModules.Where(m => Enum.IsDefined(m)).Distinct().Where(m => ModuleCatalog.Get(m).Implemented).ToList();
         Appearance ??= new AppearanceSettings();
         StartupNotices.AddRange(Appearance.Normalize());
         PreviousAppearance?.Normalize();
@@ -95,6 +114,17 @@ public sealed class SettingsStore
         }
         catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException) { }
         return new AppSettings();
+    }
+
+    /// <summary>
+    /// Applique <paramref name="change"/> puis enregistre. Si l'écriture échoue, les valeurs d'origine sont rétablies
+    /// en mémoire (sinon « Annuler » ne restaurerait rien) et l'erreur est propagée.
+    /// </summary>
+    public void ApplyAndSave(AppSettings settings, Action<AppSettings> change)
+    {
+        var before = settings.TakeSnapshot();
+        try { change(settings); Save(settings); }
+        catch { settings.Restore(before); throw; }
     }
 
     public void Save(AppSettings s)

@@ -52,7 +52,6 @@ public partial class SettingsWindow : Window
     private void RefreshAppearanceUi()
     {
         _loading = true;
-        var caps = SystemInfo.Detect();
         var resolved = ThemeManager.Resolved;
         var effectiveTheme = resolved?.Theme.Key ?? _work.ThemeKey;
 
@@ -86,7 +85,7 @@ public partial class SettingsWindow : Window
 
         bool glass = Cat.FindStyle(_work.StyleKey)?.NeedsTranslucency == true;
         TransparencySlider.Value = _work.TransparencyPercent;
-        TransparencySlider.IsEnabled = glass && !_work.ReduceTransparency && caps.Glass.TransparencyEnabled;
+        TransparencySlider.IsEnabled = resolved?.Translucent == true;   // = le rendu effectif est translucide (style, thème, Windows, mode sans transparence)
         TransparencyLabel.Text = glass
             ? $"Niveau de transparence : {_work.TransparencyPercent} %"
             : "Niveau de transparence (disponible avec Liquid Glass)";
@@ -210,12 +209,15 @@ public partial class SettingsWindow : Window
 
     private void Save_Click(object sender, RoutedEventArgs e)
     {
-        _settings.EnabledModules = ModuleUi.Read(_modules);
-        _settings.WorkDirectory = _workDir;
-        _settings.CommitAppearance(_work);
         try
         {
-            _store.Save(_settings);
+            // Si l'écriture échoue, ApplyAndSave rétablit les réglages d'origine : « Annuler » restaure alors bien l'apparence enregistrée.
+            _store.ApplyAndSave(_settings, cfg =>
+            {
+                cfg.EnabledModules = ModuleUi.Read(_modules);
+                cfg.WorkDirectory = _workDir;
+                cfg.CommitAppearance(_work);
+            });
             _saved = true;
             ThemeManager.Apply(_settings.Appearance);
             DialogResult = true;
