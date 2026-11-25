@@ -1,0 +1,11 @@
+INSTALLATION
+1. Dezippe ce dossier.
+2. Copie le dossier "GTAALL-tool" par-dessus ton depot D:\gtaa\GTAALL-tool
+   (accepte de remplacer les fichiers existants).
+   Fichiers remplaces : README.md, MainWindow.xaml.cs, ModuleCatalog.cs, SourceScanner.cs, tests\...\Program.cs
+   Fichiers nouveaux  : FileInspection.cs, TtpfInspector.cs, THIRD_PARTY_NOTICES.md, docs\SOUS-PROJETS.md
+3. Dans D:\gtaa\GTAALL-tool :
+     dotnet build GtaAllTool.sln
+     dotnet run --project tests/GtaAll.Core.SmokeTests     (doit afficher TOUS LES TESTS PASSENT)
+     dotnet run --project src/GtaAll.App
+4. Les modifications de MainWindow.xaml.cs ne sont pas compilees cote Claude (WPF = Windows seulement).

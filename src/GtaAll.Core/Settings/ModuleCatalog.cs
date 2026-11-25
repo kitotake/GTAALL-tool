@@ -18,11 +18,11 @@ public static class ModuleCatalog
         new ModuleInfo(ModuleId.Rpf9, "Archives RPF9",
             "Inspection de l'en-tête, indexation par flux zlib, recherche, export brut.", true),
         new ModuleInfo(ModuleId.Ttpf, "Textures TTPF",
-            "Analyse TTPF/RDS5 et prévisualisation des textures (BCPack inclus).", false),
-        new ModuleInfo(ModuleId.Audio, "Audio", "Lecture et export des flux audio (AWC).", false),
-        new ModuleInfo(ModuleId.Video, "Vidéo", "Lecture et export des vidéos (Bink).", false),
+            "Lecture de l'index des magasins TTPF/RDS5 (blocs, textures, formats). Pas de décodage ni de prévisualisation.", true),
+        new ModuleInfo(ModuleId.Audio, "Audio", "Inspection des en-têtes audio (AWC, WAV, Ogg). Pas de lecture.", true),
+        new ModuleInfo(ModuleId.Video, "Vidéo", "Inspection des en-têtes vidéo Bink (BIK/KB2). Pas de lecture.", true),
         new ModuleInfo(ModuleId.Models, "Modèles", "Prévisualisation et export des modèles 3D.", false),
-        new ModuleInfo(ModuleId.Structured, "Données structurées", "PSO, RBF et autres données structurées.", false),
+        new ModuleInfo(ModuleId.Structured, "Données structurées", "Analyse XML ; PSO et RBF reconnus par signature (export brut).", true),
     };
 
     public static ModuleInfo Get(ModuleId id) => All.First(m => m.Id == id);

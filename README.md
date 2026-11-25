@@ -2,7 +2,7 @@
 
 Application Windows (C# / .NET 8 / WPF) pour explorer, rechercher et exporter les ressources d'**une copie du jeu que vous possédez**, en **lecture seule**. Aucune dépendance Python ; aucun lanceur d'outils tiers : les fonctions sont réimplémentées dans `GtaAll.Core`.
 
-> **Projet incomplet.** Un seul module est implémenté (Archives RPF9).
+> **Projet incomplet.** Cinq modules sont implémentés (Archives RPF9, Textures TTPF, Audio, Vidéo, Données structurées), les quatre derniers en **inspection d'en-tête/index uniquement** (pas de lecture ni de décodage).
 
 ## Prérequis et lancement (Windows 10/11)
 - .NET 8 SDK (avec le workload « .NET desktop »).
@@ -52,10 +52,15 @@ La solution contient 3 projets : `GtaAll.Core`, `GtaAll.App` (WPF), `GtaAll.Core
 4. `dotnet run --project tests/GtaAll.Core.SmokeTests` : doit afficher `TOUS LES TESTS PASSENT`.
 
 ## Modules
-| Module | État |
-|---|---|
-| Archives RPF9 | Disponible |
-| Textures TTPF, Audio, Vidéo, Modèles, Données structurées | **À venir** : non implémentés, non activables |
+
+| Module                | État                                                                                                        |
+| --------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Archives RPF9         | Disponible (indexation, recherche, export brut)                                                             |
+| Vidéo                 | Disponible : en-tête Bink 1/2 (dimensions, images, cadence, pistes). Pas de lecture. Testé sur données synthétiques |
+| Audio                 | Disponible : en-tête WAV/Ogg/FLAC ; AWC reconnu par signature seulement (certitude « Inferred »). Pas de lecture |
+| Données structurées   | Disponible : XML analysé (DTD refusée) ; PSO/RBF reconnus par signature, export brut                        |
+| Textures TTPF         | Disponible : index RDS5/ETPF (blocs, textures, formats). **Pas de décodage ni de prévisualisation.** Testé sur données synthétiques |
+| Modèles               | **À venir** : aucun format documenté, non activable                                                         |
 
 ## Limites
 - Noms de fichiers RPF9 indisponibles : la table des matières est chiffrée, aucun déchiffrement n'est tenté.
@@ -69,3 +74,7 @@ La solution contient 3 projets : `GtaAll.Core`, `GtaAll.App` (WPF), `GtaAll.Core
 
 ## Usage légitime
 Travaillez uniquement avec vos propres fichiers. Ne redistribuez pas les ressources extraites.
+
+## Sous-projets
+
+Voir `docs/SOUS-PROJETS.md` (état de vérification des 19 entrées de `sous-tool/`) et `THIRD_PARTY_NOTICES.md`.

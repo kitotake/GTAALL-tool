@@ -167,7 +167,17 @@ public partial class MainWindow : Window
         EntryGrid.ItemsSource = null; HeaderList.ItemsSource = null; CountText.Text = ""; HexBox.Text = "";
         if (_current == null) { UpdateButtons(); return; }
 
-        SetStatus(_current.Status, _current.CanIndex ? StatusKind.Info : StatusKind.Error);
+        bool inspectable = _current.Type is SourceType.Video or SourceType.Audio or SourceType.Structured or SourceType.Ttpf;
+        SetStatus(_current.Status, _current.CanIndex || inspectable ? StatusKind.Info : StatusKind.Error);
+        if (inspectable)
+        {
+            try
+            {
+                var r = FileInspector.Inspect(_current);
+                if (r != null) { HeaderList.ItemsSource = r.Fields; NotesBox.Text = string.Join("\n", r.Notes); }
+            }
+            catch (Exception ex) { NotesBox.Text = "Inspection impossible : " + ex.Message; SetStatus("Inspection impossible : " + ex.Message, StatusKind.Error); }
+        }
         if (_current.CanIndex)
         {
             try

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GTAALL-tool")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+80d70dbc5613303bb484d6038e8500ae2eb3efa4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c2d2bbc3be2fa4a5b5aaaed7b0c5180e29fde263")]
 [assembly: System.Reflection.AssemblyProductAttribute("GTAALL-tool")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GTAALL-tool")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

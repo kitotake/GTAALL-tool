@@ -74,14 +74,14 @@ var setPath = Path.Combine(tmp, "cfg", "settings.json");
 var store = new SettingsStore(setPath);
 var fresh = store.Load();
 Check(!fresh.FirstRunCompleted && fresh.IsEnabled(ModuleId.Rpf9), "premier démarrage : assistant requis, RPF9 activé");
-fresh.FirstRunCompleted = true; fresh.EnabledModules = new() { ModuleId.Rpf9, ModuleId.Audio, ModuleId.Rpf9 }; fresh.WorkDirectory = Path.Combine(tmp, "w");
+fresh.FirstRunCompleted = true; fresh.EnabledModules = new() { ModuleId.Rpf9, ModuleId.Models, ModuleId.Rpf9 }; fresh.WorkDirectory = Path.Combine(tmp, "w");
 store.Save(fresh);
 var back = store.Load();
 Check(back.FirstRunCompleted && back.EnabledModules.SequenceEqual(new[] { ModuleId.Rpf9 }), "préférences : aller-retour, module non implémenté et doublon retirés");
-Check(!back.IsEnabled(ModuleId.Audio), "un module non implémenté n'est jamais activé");
+Check(!back.IsEnabled(ModuleId.Models), "un module non implémenté n'est jamais activé");
 File.WriteAllText(setPath, "{ corrompu");
 Check(!store.Load().FirstRunCompleted, "fichier corrompu : valeurs par défaut");
-Check(ModuleCatalog.All.Count == 6 && ModuleCatalog.All.Count(m => m.Implemented) == 1, "catalogue : 6 modules, 1 implémenté");
+Check(ModuleCatalog.All.Count == 6 && ModuleCatalog.All.Count(m => m.Implemented) == 5, "catalogue : 6 modules, 5 implémentés (RPF9, TTPF, Audio, Vidéo, Structurées)");
 Check(ModuleCatalog.ForSourceType(SourceType.Rpf9) == ModuleId.Rpf9 && ModuleCatalog.ForSourceType(SourceType.Unknown) == null, "type de source -> module");
 var inside = new AppSettings { WorkDirectory = Path.Combine(src, "cache") };
 Check(inside.WorkDirIsInside(src) && !back.WorkDirIsInside(src), "détection d'un dossier de travail dans les sources");
@@ -148,7 +148,7 @@ Check(oldS2.Appearance.ThemeKey == "white" && oldS2.Appearance.StyleKey == "stan
 
 // Liste de modules invalide (valeur inconnue venant d'une version plus récente ou d'une édition manuelle, négative, doublon,
 // non implémentée, ou null) : le chargement ne doit jamais échouer ni perdre le reste des préférences.
-File.WriteAllText(oldPath, "{\"FirstRunCompleted\":true,\"EnabledModules\":[0,99,-5,0,2],\"WorkDirectory\":\"C:\\\\w\"}");
+File.WriteAllText(oldPath, "{\"FirstRunCompleted\":true,\"EnabledModules\":[0,99,-5,0,4],\"WorkDirectory\":\"C:\\\\w\"}");
 bool modulesRobust;
 try { var badMods = new SettingsStore(oldPath).Load(); modulesRobust = badMods.FirstRunCompleted && badMods.WorkDirectory == "C:\\w" && badMods.EnabledModules.SequenceEqual(new[] { ModuleId.Rpf9 }); }
 catch (Exception) { modulesRobust = false; }
@@ -233,6 +233,94 @@ var follow = new AppearanceSettings { FollowWindowsTheme = true, WindowsDarkThem
 Check(AppearanceResolver.Resolve(follow, true, GlassCapabilities.Full).Theme.Key == "charcoal-petrol" && AppearanceResolver.Resolve(follow, false, GlassCapabilities.Full).Theme.Key == "white", "suivi de Windows : sombre -> thème choisi, clair -> Blanc");
 var badDark = new AppearanceSettings { WindowsDarkThemeKey = "white" }; badDark.Normalize();
 Check(badDark.WindowsDarkThemeKey == "charcoal-teal", "le thème 'sombre' de Windows doit être sombre");
+
+// ---- Modules Vidéo / Audio / Données structurées ----
+{
+    var d = Path.Combine(tmp, "mods"); Directory.CreateDirectory(d);
+    // Bink 2 synthétique
+    var bk = new byte[0x40]; "KB2i"u8.CopyTo(bk);
+    BitConverter.GetBytes((uint)(bk.Length - 8)).CopyTo(bk, 4); BitConverter.GetBytes(120u).CopyTo(bk, 8);
+    BitConverter.GetBytes(4096u).CopyTo(bk, 0xC); BitConverter.GetBytes(1920u).CopyTo(bk, 0x14); BitConverter.GetBytes(1080u).CopyTo(bk, 0x18);
+    BitConverter.GetBytes(30000u).CopyTo(bk, 0x1C); BitConverter.GetBytes(1001u).CopyTo(bk, 0x20); BitConverter.GetBytes(2u).CopyTo(bk, 0x28);
+    var bkp = Path.Combine(d, "a.bk2"); File.WriteAllBytes(bkp, bk);
+    var vr = FileInspector.Inspect(SourceScanner.Scan(d).First(x => x.Type == SourceType.Video))!;
+    Check(vr.Fields.Any(x => x.Name == "largeur" && x.Value == "1920") && vr.Fields.Any(x => x.Name == "hauteur" && x.Value == "1080"), "Bink : dimensions lues");
+    Check(vr.Fields.Any(x => x.Name.StartsWith("cadence") && x.Value.Contains("29.97")), "Bink : cadence 30000/1001");
+    Check(vr.Fields.Any(x => x.Name == "images" && x.Value == "120") && vr.Notes.All(x => !x.Contains("≠")), "Bink : images, taille cohérente");
+    var trunc = Path.Combine(d, "t.bik"); File.WriteAllBytes(trunc, bk.AsSpan(0, 0x20).ToArray()); File.Delete(bkp);
+    var tr = FileInspector.Inspect(SourceScanner.Scan(d).First(x => x.Type == SourceType.Video))!;
+    Check(tr.Fields.Count == 0 && tr.Notes.Any(x => x.Contains("tronqué") || x.Contains("absente")), "Bink tronqué : pas d'exception, note explicite");
+    // Audio WAV
+    var wav = new byte[44]; "RIFF"u8.CopyTo(wav.AsSpan(0)); BitConverter.GetBytes(36u).CopyTo(wav, 4); "WAVE"u8.CopyTo(wav.AsSpan(8)); "fmt "u8.CopyTo(wav.AsSpan(12));
+    BitConverter.GetBytes(16u).CopyTo(wav, 16); BitConverter.GetBytes((ushort)1).CopyTo(wav, 20); BitConverter.GetBytes((ushort)2).CopyTo(wav, 22);
+    BitConverter.GetBytes(48000u).CopyTo(wav, 24); BitConverter.GetBytes((ushort)16).CopyTo(wav, 34);
+    File.WriteAllBytes(Path.Combine(d, "s.wav"), wav);
+    var ar = FileInspector.Inspect(SourceScanner.Scan(d).First(x => x.Type == SourceType.Audio))!;
+    Check(ar.Fields.Any(x => x.Name == "fréquence (Hz)" && x.Value == "48000") && ar.Fields.Any(x => x.Name == "canaux" && x.Value == "2"), "WAV : fréquence et canaux");
+    var awc = new byte[16]; "ADAT"u8.CopyTo(awc);
+    var awr = AudioInspector.Inspect(awc, 16);
+    Check(awr.Fields.Any(x => x.Confidence == Confidence.Inferred && x.Value.Contains("AWC")), "AWC : reconnu avec certitude 'Inferred' seulement");
+    Check(AudioInspector.Inspect(new byte[2], 2).Notes.Any(x => x.Contains("non reconnu")), "audio minuscule/inconnu sans exception");
+    // Structurées
+    File.WriteAllText(Path.Combine(d, "ok.xml"), "<?xml version=\"1.0\"?><root a=\"1\"><x/><y><z b=\"2\"/></y></root>");
+    File.WriteAllText(Path.Combine(d, "bad.xml"), "<root><x></root>");
+    File.WriteAllText(Path.Combine(d, "dtd.xml"), "<?xml version=\"1.0\"?><!DOCTYPE r [<!ENTITY e SYSTEM \"file:///etc/passwd\">]><r>&e;</r>");
+    var all = SourceScanner.Scan(d).Where(x => x.Type == SourceType.Structured).ToDictionary(x => x.RelativePath);
+    var ok = FileInspector.Inspect(all["ok.xml"])!;
+    Check(ok.Fields.Any(x => x.Name == "élément racine" && x.Value == "root") && ok.Fields.Any(x => x.Name == "éléments" && x.Value == "4") && ok.Fields.Any(x => x.Name == "profondeur max" && x.Value == "3"), "XML valide : racine, 4 éléments, profondeur 3");
+    var badXml = FileInspector.Inspect(all["bad.xml"])!;
+    Check(badXml.Fields.Any(x => x.Name == "XML bien formé" && x.Value == "non") && badXml.Notes.Count > 0, "XML invalide signalé");
+    var dtd = FileInspector.Inspect(all["dtd.xml"])!;
+    Check(dtd.Fields.Any(x => x.Value == "non"), "XML avec DTD/entité externe refusé (pas de lecture de fichier local)");
+    File.WriteAllBytes(Path.Combine(d, "p.pso"), "PSIN\0\0\0\0"u8.ToArray());
+    var pso2 = FileInspector.Inspect(SourceScanner.Scan(d).First(x => x.RelativePath == "p.pso"))!;
+    Check(pso2.Fields.Any(x => x.Value.Contains("PSIN")) && pso2.Notes.Any(x => x.Contains("non analysée")), "PSO : signature seule, limite annoncée");
+    Check(FileInspector.Inspect(new SourceFile("x", "x", 0, SourceType.Rpf9, "")) == null, "RPF9 non traité par FileInspector");
+}
+
+Check(!ModuleCatalog.Get(ModuleId.Models).Implemented, "Modèles : non implémenté, donc non activable");
+
+// ---- TTPF (index RDS5/ETPF, lecture seule) ----
+{
+    byte[] MakeTtpf(int textures, bool goodMagic = true, uint chunkCount = 3, uint etpfCount = 0xFFFFFFFF)
+    {
+        var b = new byte[0x100 + 16 + 24 * textures + 64];
+        (goodMagic ? "RDS5"u8 : "XXXX"u8).CopyTo(b.AsSpan(0));
+        BitConverter.GetBytes(chunkCount).CopyTo(b, 4); BitConverter.GetBytes(0x20000u).CopyTo(b, 8);
+        // bloc 0 : zlib (0x20), fichier 0x1000, virtuel page 0 ; bloc 1 : BC7 (0x1C) ; bloc 2 : terminateur
+        BitConverter.GetBytes((0x20u << 24) | (0x1000u >> 8)).CopyTo(b, 0x18); BitConverter.GetBytes(0u).CopyTo(b, 0x1C);
+        BitConverter.GetBytes((0x1Cu << 24) | (0x2000u >> 8)).CopyTo(b, 0x20); BitConverter.GetBytes(1u).CopyTo(b, 0x24);
+        "ETPF"u8.CopyTo(b.AsSpan(0x100)); BitConverter.GetBytes(0x27Au).CopyTo(b, 0x104);
+        BitConverter.GetBytes(etpfCount == 0xFFFFFFFF ? (uint)textures : etpfCount).CopyTo(b, 0x108);
+        for (int i = 0; i < textures; i++)
+        {
+            uint d0 = (uint)(255) | ((uint)(127) << 14) | (3u << 28);                  // 256x128, champ mips 3
+            uint d1 = (98u << 3) | (2u << 20) | (0u << 24);                            // BC7, 2D, tile mode 0
+            BitConverter.GetBytes(d0).CopyTo(b, 0x110 + 16 * i); BitConverter.GetBytes(d1).CopyTo(b, 0x114 + 16 * i);
+            BitConverter.GetBytes(0x1000UL * (ulong)i).CopyTo(b, 0x118 + 16 * i);
+            BitConverter.GetBytes(0x1111UL * (ulong)(i + 1)).CopyTo(b, 0x110 + 16 * textures + 8 * i);
+        }
+        return b;
+    }
+    var tt = Path.Combine(tmp, "ttpf"); Directory.CreateDirectory(tt);
+    var good = Path.Combine(tt, "g.ttpf"); File.WriteAllBytes(good, MakeTtpf(3));
+    var st = TtpfInspector.Read(good);
+    Check(st.Textures.Count == 3 && st.Textures[0].Width == 256 && st.Textures[0].Height == 128 && st.Textures[0].FormatName == "BC7" && st.Textures[0].KindName == "2D" && st.Textures[0].MipField == 3, "TTPF : dimensions, format BC7, type 2D, champ mips");
+    Check(st.Textures[2].Hash == 0x1111UL * 3 && st.EtpfVersion == 0x27A, "TTPF : hash 64 bits et version ETPF");
+    Check(st.Chunks.Count == 2 && st.Chunks[0].Codec == "zlib" && st.Chunks[1].Codec == "BCPack BC7" && st.Chunks[1].FileOffset == 0x2000 && st.Chunks[1].VirtualOffset == 0x1000 + 0x4000, "TTPF : table de blocs (codec, offset fichier, offset virtuel)");
+    var ir = FileInspector.Inspect(SourceScanner.Scan(tt).First(x => x.Type == SourceType.Ttpf))!;
+    Check(ir.Fields.Any(x => x.Name == "textures" && x.Value == "3") && ir.Notes.Any(x => x.Contains("aucun pixel")), "TTPF : résumé + limite annoncée (aucun décodage)");
+    // robustesse : ne doit jamais lever autre chose qu'une note
+    foreach (var (name, data) in new (string, byte[])[] {
+        ("magic", MakeTtpf(2, goodMagic: false)), ("chunks", MakeTtpf(2, chunkCount: 0xFFFFFFF0)),
+        ("etpf", MakeTtpf(2, etpfCount: 0x7FFFFFFF)), ("court", new byte[10]), ("tronque", MakeTtpf(3)[..0x120]) })
+    {
+        var pth = Path.Combine(tt, name + ".ttpf"); File.WriteAllBytes(pth, data);
+        InspectionResult? r2 = null; bool tthrew = false;
+        try { r2 = TtpfInspector.Inspect(pth, data.Length); } catch (Exception) { tthrew = true; }
+        Check(!tthrew && r2 != null && r2.Fields.Count == 0 && r2.Notes.Any(x => x.Contains("illisible")), $"TTPF invalide ({name}) : note explicite, pas d'exception");
+    }
+}
 
 Directory.Delete(tmp, true);
 Console.WriteLine(fails == 0 ? "TOUS LES TESTS PASSENT" : $"{fails} ECHEC(S)");

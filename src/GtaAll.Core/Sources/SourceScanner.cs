@@ -15,7 +15,7 @@ public static class SourceScanner
     private static readonly Dictionary<string, SourceType> Ext = new(StringComparer.OrdinalIgnoreCase)
     {
         [".rpf"] = SourceType.Rpf9, [".ttpf"] = SourceType.Ttpf,
-        [".awc"] = SourceType.Audio, [".bik"] = SourceType.Video, [".bk2"] = SourceType.Video,
+        [".awc"] = SourceType.Audio, [".wav"] = SourceType.Audio, [".ogg"] = SourceType.Audio, [".bik"] = SourceType.Video, [".bk2"] = SourceType.Video,
         [".dds"] = SourceType.Texture, [".xml"] = SourceType.Structured, [".pso"] = SourceType.Structured,
         [".rbf"] = SourceType.Structured,
     };
@@ -45,11 +45,11 @@ public static class SourceScanner
             }
             else status = t switch
             {
-                SourceType.Ttpf => "Reconnu — analyse TTPF pas encore implémentée",
-                SourceType.Audio => "Reconnu — audio pas encore implémenté",
-                SourceType.Video => "Reconnu — vidéo pas encore implémentée",
+                SourceType.Ttpf => "TTPF : lecture de l'index disponible (pas de décodage des pixels)",
+                SourceType.Audio => "Audio : inspection de l'en-tête disponible (pas de lecture)",
+                SourceType.Video => "Vidéo : inspection de l'en-tête disponible (pas de lecture)",
                 SourceType.Texture => "Reconnu — prévisualisation pas encore implémentée",
-                _ => "Reconnu — lecteur pas encore implémenté"
+                _ => "Données structurées : analyse disponible"
             };
             res.Add(new SourceFile(p, rel, size, t, status));
         }
