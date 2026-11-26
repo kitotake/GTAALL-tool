@@ -4,7 +4,7 @@
 GtaAll.Core            noyau : Confidence, HeaderField, InspectionResult, ByteReader, SourceScanner/SourceFile,
                        ModuleCatalog, AppSettings, apparence, IFormatModule + ModuleRegistry, ILog/FileLog, SafeFileAccess
 GtaAll.Archives        RPF9 : en-tête, indexeur, cache, recherche (EntryFilter), export brut, inflate zlib      -> Core
-GtaAll.Textures        TTPF/RDS5 : index ETPF (lecture seule, aucun pixel décodé)                               -> Core
+GtaAll.Textures        TTPF/RDS5 : index ETPF, disposition Gfx10, décodeurs BC1/3/4/5/7, PNG/DDS, planche-contact       -> Core
 GtaAll.Audio           en-têtes WAV/Ogg/FLAC, AWC reconnu par signature                                         -> Core
 GtaAll.Video           en-têtes Bink 1/2                                                                        -> Core
 GtaAll.StructuredData  XML analysé, PSO/RBF reconnus par signature                                              -> Core

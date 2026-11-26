@@ -4,11 +4,20 @@ using GtaAll.Core.Sources;
 
 // gtaall-diag : rapport TEXTE en lecture seule, à copier-coller. N'écrit rien, ne modifie aucune source.
 // Usage : gtaall-diag <fichier|dossier> [--rapide]     (--rapide : pour un .rpf, en-tête seulement, sans indexation)
+//         gtaall-diag <fichier.ttpf> --export <dossier> [--max N] [--hash HEX]   écrit des PNG + DDS (mip 0) dans un dossier
+//         gtaall-diag <fichier.ttpf> --apercu <page.html> [--max N]              planche-contact HTML (vignettes) à ouvrir dans un navigateur
 foreach (IFormatModule m in new IFormatModule[] { new Rpf9Module(), new TtpfModule(), new AudioModule(), new VideoModule(), new StructuredDataModule() })
     ModuleRegistry.Default.Register(m);
 
-var a = args.Where(x => !x.StartsWith("--")).ToArray();
+System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+
+string? Opt(string name) { int i = Array.IndexOf(args, name); return i >= 0 && i + 1 < args.Length ? args[i + 1] : null; }
+var valueOpts = new[] { "--export", "--apercu", "--max", "--hash" };
+var a = args.Where((x, i) => !x.StartsWith("--") && !(i > 0 && valueOpts.Contains(args[i - 1]))).ToArray();
 bool fast = args.Contains("--rapide");
+string? exportDir = Opt("--export"), previewPage = Opt("--apercu"), hashOpt = Opt("--hash");
+int maxTex = int.TryParse(Opt("--max"), out var mx) ? mx : (previewPage != null ? 60 : 5);
 if (a.Length != 1) { Console.WriteLine("Usage : gtaall-diag <fichier|dossier> [--rapide]"); return 2; }
 var target = a[0];
 
@@ -29,6 +38,11 @@ try
         return 0;
     }
     if (!File.Exists(target)) { Console.WriteLine("Introuvable : " + target); return 1; }
+    if (exportDir != null || previewPage != null)
+    {
+        if (!target.EndsWith(".ttpf", StringComparison.OrdinalIgnoreCase)) { Console.WriteLine("--export / --apercu : seulement pour un fichier .ttpf"); return 2; }
+        return TextureTools.Run(target, exportDir, previewPage, maxTex, hashOpt);
+    }
     Report(target, fast);
     return 0;
 }

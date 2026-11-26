@@ -59,7 +59,7 @@ La solution contient 3 projets : `GtaAll.Core`, `GtaAll.App` (WPF), `GtaAll.Core
 | Vidéo                 | Disponible : en-tête Bink 1/2 (dimensions, images, cadence, pistes). Pas de lecture. Testé sur données synthétiques |
 | Audio                 | Disponible : en-tête WAV/Ogg/FLAC ; AWC reconnu par signature seulement (certitude « Inferred »). Pas de lecture |
 | Données structurées   | Disponible : XML analysé (DTD refusée) ; PSO/RBF reconnus par signature, export brut                        |
-| Textures TTPF         | Disponible : index RDS5/ETPF (blocs, textures, formats). **Pas de décodage ni de prévisualisation.** Testé sur données synthétiques |
+| Textures TTPF         | Disponible : index RDS5/ETPF + **aperçu et export PNG/DDS (mip 0)** pour BC1, BC3, BC4, BC5, BC7, RGBA8, BGRA8, R8. Non géré : blocs BCPack, BC2, BC6H, formats 16 bits, cubes/tableaux/3D, autres mips |
 | Modèles               | **À venir** : aucun format documenté, non activable                                                         |
 
 ## Limites
@@ -67,6 +67,12 @@ La solution contient 3 projets : `GtaAll.Core`, `GtaAll.App` (WPF), `GtaAll.Core
 - Les ressources RAGE ne sont pas réassemblées ; l'export est brut. Heuristique de regroupement approximative (un fichier « bin » pur est collé à l'entrée précédente).
 - Indexeur monothread, performances sur de grosses archives inconnues.
 - Formats d'après des notes communautaires (GTA6-Asset-Info, GPL-3.0), non confirmées par le code du jeu. Seuls 2 des 19 dépôts de référence ont été lus ; le code est original.
+
+## Aperçu des textures
+
+- Dans l'application : sélectionner un `.ttpf` puis **Aperçu des textures** (60 premières textures décodées, planche ouverte dans le navigateur ; fichier écrit dans `%TEMP%\GTAALL-tool`).
+- En ligne de commande : `gtaall-diag fichier.ttpf --apercu page.html [--max N]` ou `--export dossier [--max N] [--hash HEX]` (PNG + DDS).
+- Validation : décodeurs BC4/BC5/BC7 identiques à un décodeur de référence indépendant ; disposition Gfx10 vérifiée sur un vrai magasin (taille calculée = écart avec la texture suivante pour 1 741 textures sur 1 741 ; mip 1 = mip 0 réduite). Les blocs BCPack (11 textures sur 1 742 dans le fichier testé) ne sont pas décodés : la texture est alors refusée, jamais affichée fausse.
 
 ## Architecture
 - `src/GtaAll.Core` : `Formats`, `Sources`, `Search`, `Settings` (catalogue de modules, préférences).

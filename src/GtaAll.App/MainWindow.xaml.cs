@@ -284,6 +284,35 @@ public partial class MainWindow : Window
         IndexBtn.IsEnabled = _current?.CanIndex == true && !_indexing;
         CancelBtn.IsEnabled = _indexing;
         ExportBtn.IsEnabled = EntryGrid.SelectedItem is EntryRow && !_indexing;
+        PreviewBtn.IsEnabled = _current?.Type == SourceType.Ttpf && !_previewing;
+    }
+
+    private bool _previewing;
+
+    /// <summary>Décode les premières textures du .ttpf sélectionné et ouvre une planche-contact HTML dans le navigateur (lecture seule ; fichier écrit dans %TEMP%).</summary>
+    private async void Preview_Click(object sender, RoutedEventArgs e)
+    {
+        if (_current?.Type != SourceType.Ttpf || _previewing) return;
+        var path = _current.Path;
+        _previewing = true; UpdateButtons();
+        SetStatus("Décodage des textures… (quelques secondes)", StatusKind.Busy);
+        try
+        {
+            var sheet = await Task.Run(() => GtaAll.Textures.Decoding.TtpfContactSheet.Build(path, 60));
+            var dir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "GTAALL-tool");
+            GtaAll.Core.IO.SafeFileAccess.EnsureOutputOutsideSources(System.IO.Path.GetDirectoryName(path)!, dir);
+            Directory.CreateDirectory(dir);
+            var page = System.IO.Path.Combine(dir, "apercu_" + System.IO.Path.GetFileNameWithoutExtension(path) + ".html");
+            File.WriteAllText(page, sheet.Html, new System.Text.UTF8Encoding(false));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(page) { UseShellExecute = true });
+            SetStatus($"Aperçu ouvert : {sheet.Shown} texture(s) affichée(s), {sheet.Failed} non décodée(s).", sheet.Shown > 0 ? StatusKind.Ok : StatusKind.Error);
+        }
+        catch (Exception ex)
+        {
+            GtaAll.Core.Logging.Log.Error("apercu", "aperçu TTPF impossible", ex);
+            SetStatus("Aperçu impossible : " + ex.Message, StatusKind.Error);
+        }
+        finally { _previewing = false; UpdateButtons(); }
     }
 
     private void SetStatus(string text, StatusKind kind)

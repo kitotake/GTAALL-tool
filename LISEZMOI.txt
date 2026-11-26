@@ -1,0 +1,4 @@
+Correctif : valeurs d'en-tete independantes de la langue de Windows (virgule decimale en francais).
+Copie ces 5 fichiers par-dessus ton depot (memes chemins), puis :
+  dotnet build GtaAllTool.sln
+  dotnet run --project tests/GtaAll.Core.SmokeTests      (attendu : TOUS LES TESTS PASSENT, 97 verifications)

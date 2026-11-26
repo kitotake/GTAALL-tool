@@ -19,6 +19,7 @@
           <Button x:Name="IndexBtn" Content="Indexer l'archive" Click="Index_Click" IsEnabled="False"/>
           <Button x:Name="CancelBtn" Content="Annuler" Click="Cancel_Click" IsEnabled="False"/>
           <Button x:Name="ExportBtn" Content="Exporter l'entrée" Click="Export_Click" IsEnabled="False"/>
+          <Button x:Name="PreviewBtn" Content="Aperçu des textures" Click="Preview_Click" IsEnabled="False"/>
         </StackPanel>
       </DockPanel>
     </Border>

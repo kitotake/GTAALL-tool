@@ -5,6 +5,7 @@ using GtaAll.Core.Search;
 using GtaAll.Core.Appearance;
 using GtaAll.Core.Settings;
 using GtaAll.Core.Modules;
+using GtaAll.Textures.Decoding;
 using GtaAll.Core.Sources;
 
 // Composition : Core ne connaît aucun module, le registre est rempli ici (comme le fait l'application).
@@ -240,6 +241,9 @@ var badDark = new AppearanceSettings { WindowsDarkThemeKey = "white" }; badDark.
 Check(badDark.WindowsDarkThemeKey == "charcoal-teal", "le thème 'sombre' de Windows doit être sombre");
 
 // ---- Modules Vidéo / Audio / Données structurées ----
+// Les valeurs affichées ne doivent pas dépendre de la langue de Windows (virgule décimale en français).
+var savedCulture = System.Globalization.CultureInfo.CurrentCulture;
+try { System.Globalization.CultureInfo.CurrentCulture = new System.Globalization.CultureInfo("fr-FR"); } catch (System.Globalization.CultureNotFoundException) { }
 {
     var d = Path.Combine(tmp, "mods"); Directory.CreateDirectory(d);
     // Bink 2 synthétique
@@ -284,6 +288,8 @@ Check(badDark.WindowsDarkThemeKey == "charcoal-teal", "le thème 'sombre' de Win
 }
 
 Check(!ModuleCatalog.Get(ModuleId.Models).Implemented, "Modèles : non implémenté, donc non activable");
+
+System.Globalization.CultureInfo.CurrentCulture = savedCulture;
 
 // ---- TTPF (index RDS5/ETPF, lecture seule) ----
 {
@@ -375,6 +381,123 @@ Check(!ModuleCatalog.Get(ModuleId.Models).Implemented, "Modèles : non implémen
     var zeros = new byte[0x400 + 4096]; "9FPR"u8.CopyTo(zeros.AsSpan(0)); BitConverter.GetBytes(0x400u).CopyTo(zeros, 4);
     var pz2 = Path.Combine(dz, "zero.rpf"); File.WriteAllBytes(pz2, zeros);
     Check(Rpf9Indexer.Build(pz2, null, default).Warnings.Any(w => w.Contains("sans compression zlib")), "RPF9 données non aléatoires : avertissement 'stocké sans compression zlib'");
+}
+
+// ---- Décodage des textures : blocs BCn, disposition Gfx10, lecture du magasin, PNG/DDS ----
+{
+    var bcVectors = new (string fmt, string block, string rgba)[]
+    {
+        ("Bc7", "9d79b1a37f31801cd11a6706fb40d6bd", "c6d642ffc6e488ff92928bffb5b584ffc6d642ffa4a487ff8c8c8cff8a119cffb5b584ff9d9d89ff6c0fadff500dbeff92928bff500dbeff1808deffa6148bff"),
+        ("Bc7", "56526846903bb13ede562439e9c1b823", "5151f6ff5962f2ff5962f2ff7ca8e4ff8d5aa7ff5151f6ff7497e8ff85b9e1ff994cb5ff994cb5ff6273efff6b86ebff75778cff44b154ff994cb5ff5151f6ff"),
+        ("Bc7", "ac6089bca71f3d1a6d2d3cadb3669cbd", "84ff5aff298c5aff47b25aff8cf7c6ff298c5aff84ff5aff298c5aff8cf7c6ffef18b5ff4a6b73ffb9339fffc97daaffb9339fff4a6b73ff4a6b73ffc97daaff"),
+        ("Bc7", "58e165e434249d8b829f411669842a97", "f020c0ffc25ab5ff64d29efff020c0ffcf9366fff020c0fff020c0ffc25ab5ffcc8275ffcf9366ff9298a9fff020c0ffd2a258ffcc8275ffcc8275ff9298a9ff"),
+        ("Bc7", "9011036cf3e822086ecaa0075a69fc17", "8c00b58eae72c38ebeaaca9ca454c08e8c00b58eae72c39cbeaaca8e9c38bc8e941cb9bab68ec79c941cb9babeaaca8ec6c6ce9cc6c6ce9cb68ec7ac8c00b59c"),
+        ("Bc7", "a0a8f83718aa8f3bd1f65e8144e61d9a", "50e342bfb3b2b497b3e3b49780b279abe37feb83b3b2b497e37feb83804e79abe3b2eb83e34eeb83b3b2b497b3e3b497507f42bf507f42bf50b242bf807f79ab"),
+        ("Bc7", "c00fcb06a6c1ad8f2906e732b10f4db7", "4683898743797a994a8f9a733f6d69ad4b94a16a57bcda2843797a99447e8190417271a452abc14559c1e11f3f6d69ad55b5d033468389874b94a16a52abc145"),
+        ("Bc7", "80d35ea68c088ab3f648818ba4a6656b", "b23f88693000b2c32d0d8a902b1b605b86679f3db23f88692b1b605b2b1b605bb23f8869b23f886986679f3d2d0d8a905d8eb61486679f3d86679f3db23f8869"),
+        ("Bc1", "1ff8e0071b1b1b1b", "55aa55ffaa55aaff00ff00ffff00ffff55aa55ffaa55aaff00ff00ffff00ffff55aa55ffaa55aaff00ff00ffff00ffff55aa55ffaa55aaff00ff00ffff00ffff"),
+        ("Bc3", "c828e0cb6e38ff7200f81f00e4e4e4e4", "ff0000c80000ff83aa00553e5500aa6cff0000830000ff6caa00559a5500aa9aff0000c80000ff3eaa0055835500aa3eff00003e0000ff6caa0055835500aa9a"),
+        ("Bc4", "fa0aac1dda963747", "930000ff700000ff4e0000ff4e0000ff0a0000ff930000ff4e0000ff4e0000ff4e0000ffd70000ff4e0000ffb50000ffb50000ff4e0000ff0a0000ffd70000ff"),
+        ("Bc5", "fa0a8bd536cf8ade1edc1fe7a90141c2", "b5ff00ff0a6a00ff4e9000ffd76a00ff700000ff706a00ff704400ff0ab600ff2cdc00ff0a1e00ffb59000ff701e00fffa9000ff709000ff2c1e00ff4e0000ff"),
+    };
+    foreach (var (fmt, block, expected) in bcVectors)
+    {
+        var f = Enum.Parse<BcDecoder.Format>(fmt);
+        var got = new byte[64]; BcDecoder.DecodeBlock(f, Convert.FromHexString(block), got);
+        var exp = Convert.FromHexString(expected);
+        int[] chans = fmt == "Bc4" ? new[] { 0 } : fmt == "Bc5" ? new[] { 0, 1 } : new[] { 0, 1, 2, 3 };
+        bool bcSame = true; for (int pi = 0; pi < 16; pi++) foreach (var c in chans) if (got[pi * 4 + c] != exp[pi * 4 + c]) bcSame = false;
+        Check(bcSame, $"décodage {fmt} : bloc identique à la référence ({block[..8]}…)");
+    }
+    var bc1t = new byte[] { 0x1F, 0x00, 0xE0, 0x07, 0x1B, 0x1B, 0x1B, 0x1B };   // c0 < c1 : mode 3 couleurs
+    var o1 = new byte[64]; BcDecoder.DecodeBlock(BcDecoder.Format.Bc1, new byte[] { 0x1F, 0x00, 0xE0, 0x07, 0xFF, 0xFF, 0xFF, 0xFF }, o1);
+    Check(o1[3] == 0 && o1[0] == 0 && o1[1] == 0 && o1[2] == 0, "BC1 mode 3 couleurs : 4e couleur = noir transparent (spécification D3D)");
+    var o3 = new byte[64]; BcDecoder.DecodeBlock(BcDecoder.Format.Bc3, new byte[] { 255, 255, 0, 0, 0, 0, 0, 0, 0x1F, 0x00, 0xE0, 0x07, 0xFF, 0xFF, 0xFF, 0xFF }, o3);
+    Check(o3[3] == 255 && o3[0] != 0 || o3[1] != 0, "BC3 : toujours 4 couleurs, même si c0 < c1 (spécification D3D)");
+    var o7 = new byte[64]; BcDecoder.DecodeBlock(BcDecoder.Format.Bc7, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, o7);
+    Check(o7.All(x => x == 0), "BC7 : bloc réservé (mode > 7) -> transparent noir, sans exception");
+    Check(BcDecoder.Decode(BcDecoder.Format.Bc7, new byte[16], 3, 5).Length == 3 * 5 * 4, "décodage d'une image non multiple de 4 : taille w*h*4");
+    Check(BcDecoder.Decode(BcDecoder.Format.Bc1, new byte[4], 8, 8).Length == 8 * 8 * 4, "données trop courtes : pas d'exception");
+
+    // disposition Gfx10 : valeurs mesurées sur le vrai fichier (2048x2048 BC7, SW_64KB_D, 8 mips)
+    var lay = Gfx10Layout.Create(true, 512, 512, 8, 16)!;
+    Check(lay.SliceBytes == 5636096 && lay.MipSpan(0) == (0x160000L, 0x560000L) && lay.MipSpan(1) == (0x60000L, 0x160000L) && lay.MipSpan(4) == (0L, 0x10000L),
+        "Gfx10 : 2048x2048 BC7 -> 5 636 096 octets, mip0 0x160000-0x560000 (mesuré sur le fichier réel)");
+    foreach (var (d64, w, h, mips, bpe) in new[] { (true, 64, 64, 1, 16), (false, 100, 36, 4, 16), (true, 33, 17, 3, 8), (false, 20, 20, 1, 4), (true, 128, 128, 5, 1) })
+    {
+        var l = Gfx10Layout.Create(d64, w, h, mips, bpe)!;
+        var seen = new HashSet<long>(); bool inRange = true, uniq = true;
+        var (a, b) = l.MipSpan(0);
+        for (int y = 0; y < h; y++) for (int x = 0; x < w; x++) { long ad = l.Addr(0, x, y); if (ad < a || ad + bpe > b) inRange = false; if (!seen.Add(ad)) uniq = false; }
+        Check(inRange && uniq, $"Gfx10 {(d64 ? "64K" : "4K")} {w}x{h} bpe{bpe} : adresses de la mip 0 uniques et dans sa plage");
+    }
+    Check(Gfx10Layout.Create(true, 8, 8, 1, 3) == null, "Gfx10 : taille d'élément non gérée -> null (pas d'exception)");
+
+    // PNG / DDS
+    var px = new byte[4 * 3 * 4]; for (int i = 0; i < px.Length; i++) px[i] = (byte)(i * 7);
+    var png = ImageFiles.PngBytes(px, 4, 3);
+    Check(png.AsSpan(0, 8).SequenceEqual(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }), "PNG : signature");
+    {   // relecture : on extrait IDAT, on décompresse et on retrouve les pixels
+        int pp = 8; var idat = new MemoryStream(); bool crcOk = true;
+        while (pp < png.Length)
+        {
+            int len = (png[pp] << 24) | (png[pp + 1] << 16) | (png[pp + 2] << 8) | png[pp + 3];
+            var type = System.Text.Encoding.ASCII.GetString(png, pp + 4, 4);
+            uint crc = 0xFFFFFFFF; for (int i = pp + 4; i < pp + 8 + len; i++) { crc ^= png[i]; for (int k = 0; k < 8; k++) crc = (crc & 1) != 0 ? 0xEDB88320 ^ (crc >> 1) : crc >> 1; } crc ^= 0xFFFFFFFF;
+            uint stored = (uint)((png[pp + 8 + len] << 24) | (png[pp + 9 + len] << 16) | (png[pp + 10 + len] << 8) | png[pp + 11 + len]);
+            if (crc != stored) crcOk = false;
+            if (type == "IDAT") idat.Write(png, pp + 8, len);
+            pp += 12 + len;
+        }
+        idat.Position = 0; var raw = new MemoryStream(); new System.IO.Compression.ZLibStream(idat, System.IO.Compression.CompressionMode.Decompress).CopyTo(raw);
+        var rb = raw.ToArray(); bool pix = rb.Length == 3 * (1 + 16);
+        for (int y = 0; pix && y < 3; y++) { if (rb[y * 17] != 0) pix = false; for (int x = 0; x < 16; x++) if (rb[y * 17 + 1 + x] != px[y * 16 + x]) pix = false; }
+        Check(crcOk && pix, "PNG : CRC de chaque bloc valides et pixels relus identiques");
+    }
+    var dds = ImageFiles.DdsBytes(8, 4, 98, new byte[32 * 1]);
+    Check(dds.AsSpan(0, 4).SequenceEqual("DDS "u8) && BitConverter.ToUInt32(dds, 12) == 4 && BitConverter.ToUInt32(dds, 16) == 8 && BitConverter.ToUInt32(dds, 128) == 98 && dds.Length == 148 + 32, "DDS : en-tête DX10, dimensions, format DXGI, taille");
+
+    // magasin TTPF synthétique : 2 blocs zlib + 1 bloc BCPack, une texture RGBA8 4x4 + une R8 en tuilage 0
+    {
+        byte[] Z(byte[] d) { using var ms = new MemoryStream(); using (var z = new System.IO.Compression.ZLibStream(ms, System.IO.Compression.CompressionLevel.Optimal, true)) z.Write(d); return ms.ToArray(); }
+        var t0 = new TtpfTexture(0x11, 8, 8, 61 /*R8*/, 2, 1, 1, 0, 0, 0x1000);       // virt 0x1000, tile 1 (SW_4KB_S), R8, 1 mip
+        var l0 = TextureLayouts.LayoutFor(t0, 1)!;
+        var tiled = new byte[0x4000]; var grad = new byte[64];
+        for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++) { grad[y * 8 + x] = (byte)(y * 16 + x); tiled[l0.Addr(0, x, y)] = grad[y * 8 + x]; }
+        var c0 = Z(tiled); var c1 = Z(new byte[0x4000].Select((_, i) => (byte)(i & 0xFF)).ToArray());
+        var file = new List<byte>(); file.AddRange("RDS5"u8.ToArray()); file.AddRange(BitConverter.GetBytes(4u)); file.AddRange(BitConverter.GetBytes(0x10000u)); file.AddRange(new byte[12]);
+        file.AddRange(new byte[0x1000 - file.Count]);
+        long off0 = 0x1000; file.AddRange(c0); while (file.Count % 0x100 != 0) file.Add(0);
+        long off1 = file.Count; file.AddRange(c1); while (file.Count % 0x100 != 0) file.Add(0);
+        long off2 = file.Count; file.AddRange(new byte[0x100]);   // bloc BCPack factice
+        long end = file.Count + 0x100; file.AddRange(new byte[0x100]);
+        uint A(uint fl, long o) => (fl << 24) | (uint)(o >> 8);
+        var tab = new List<byte>();
+        foreach (var (fl, o, vp) in new[] { (0x20u, off0, 0u), (0x20u, off1, 1u), (0x1Cu, off2, 2u), (0x00u, end, 3u) }) { tab.AddRange(BitConverter.GetBytes(A(fl, o))); tab.AddRange(BitConverter.GetBytes(vp)); }
+        var arr = file.ToArray(); BitConverter.GetBytes(4u).CopyTo(arr, 4); tab.CopyTo(arr, 0x18);
+        var full = new byte[0x1000 + 0x400]; // l'index ETPF doit se trouver à align(0x10+8n,0x100)
+        long eoff = (0x10L + 8 * 4 + 0xFF) & ~0xFFL;
+        // l'index ETPF (0x100) tient dans l'en-tête de 0x1000 octets
+        "ETPF"u8.CopyTo(arr.AsSpan((int)eoff)); BitConverter.GetBytes(0x27Au).CopyTo(arr, (int)eoff + 4); BitConverter.GetBytes(1u).CopyTo(arr, (int)eoff + 8);
+        uint d0 = 7u | (7u << 14), d1 = (61u << 3) | (2u << 20) | (1u << 24);
+        BitConverter.GetBytes(d0).CopyTo(arr, (int)eoff + 16); BitConverter.GetBytes(d1).CopyTo(arr, (int)eoff + 20); BitConverter.GetBytes(0UL).CopyTo(arr, (int)eoff + 24);
+        BitConverter.GetBytes(0x11UL).CopyTo(arr, (int)eoff + 32);
+        var pth = Path.Combine(tmp, "synth.ttpf"); File.WriteAllBytes(pth, arr);
+        var synthStore = TtpfInspector.Read(pth);
+        Check(synthStore.Textures.Count == 1 && synthStore.Textures[0].Virt == 0x1000 && synthStore.Textures[0].Mips == 1 && synthStore.Textures[0].DataSize == l0.SliceBytes, "TTPF synthétique : emplacement des données, mips, taille calculée");
+        using var fsx = File.OpenRead(pth);
+        var v = TtpfImages.ReadVirtual(fsx, synthStore, 0x1000 + 0x4000 + 5, 8, out long miss0);
+        Check(miss0 == 0 && v.SequenceEqual(new byte[] { 5, 6, 7, 8, 9, 10, 11, 12 }), "lecture de l'espace virtuel : octets du 2e bloc zlib corrects");
+        var vb = TtpfImages.ReadVirtual(fsx, synthStore, 0x1000 + 0x8000, 16, out long missB);
+        Check(missB == 16 && vb.All(x => x == 0), "lecture : bloc BCPack -> octets manquants comptés, pas d'exception");
+        var imgR = TtpfImages.DecodeMip0(fsx, synthStore, synthStore.Textures[0], out var prob);
+        bool g = imgR != null && imgR.Width == 8 && imgR.Height == 8;
+        for (int i = 0; g && i < 64; i++) if (imgR!.Rgba[i * 4] != grad[i] || imgR.Rgba[i * 4 + 3] != 255) g = false;
+        Check(g && prob == null, "décodage de bout en bout (R8, tuilage 4K) : dégradé retrouvé");
+        var straddle = synthStore.Textures[0] with { Virt = 0x1000 + 0x8000 - 16 };
+        Check(TtpfImages.DecodeMip0(fsx, synthStore, straddle, out var p2) == null && p2 != null && p2.Contains("BCPack"), "texture dans un bloc BCPack : refus explicite, jamais d'image fausse");
+        Check(TtpfImages.DecodeMip0(fsx, synthStore, synthStore.Textures[0] with { Kind = 4 }, out var p3) == null && p3 != null, "cube/tableau : refus explicite");
+    }
 }
 
 Directory.Delete(tmp, true);

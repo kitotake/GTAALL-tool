@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GtaAll.Core.SmokeTests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1b57c3421cb9b0e6b4c8d6760d555fe79b31a632")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3c2b0eb85b74cfd3f2dd73c5e43ad98c55eb8c7d")]
 [assembly: System.Reflection.AssemblyProductAttribute("GtaAll.Core.SmokeTests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GtaAll.Core.SmokeTests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -23,7 +23,7 @@ public static class BinkInspector
         f.Add(new(0xC, 4, "plus grande image (octets)", $"{largest}", Confidence.Confirmed));
         f.Add(new(0x14, 4, "largeur", $"{w}", Confidence.Confirmed));
         f.Add(new(0x18, 4, "hauteur", $"{ht}", Confidence.Confirmed));
-        string fps = fd == 0 ? "invalide" : $"{(double)fn / fd:0.###}";
+        string fps = fd == 0 ? "invalide" : ((double)fn / fd).ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
         f.Add(new(0x1C, 8, "cadence (i/s)", $"{fn}/{fd} = {fps}", Confidence.Confirmed));
         f.Add(new(0x24, 4, "drapeaux vidéo", $"0x{flags:X8}", Confidence.Inferred));
         f.Add(new(0x28, 4, "pistes audio", $"{tracks}", Confidence.Confirmed));

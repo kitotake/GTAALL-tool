@@ -3,7 +3,8 @@ using System.Buffers.Binary;
 namespace GtaAll.Core.Formats;
 
 /// <summary>Une texture décrite par l'index ETPF d'un magasin TTPF (aucun pixel n'est lu).</summary>
-public sealed record TtpfTexture(ulong Hash, int Width, int Height, int DxgiFormat, int Kind, int TileMode, int Slices, int MipField)
+public sealed record TtpfTexture(ulong Hash, int Width, int Height, int DxgiFormat, int Kind, int TileMode, int Slices, int MipField,
+    ulong Loc = 0, long Virt = 0, int Mips = 1, long DataSize = 0)
 {
     public string FormatName => TtpfInspector.DxgiName(DxgiFormat);
     public string KindName => Kind switch { 2 => "2D", 4 => "cube", 6 => "3D", 10 => "tableau 2D", _ => $"type {Kind}" };
@@ -86,12 +87,15 @@ public static class TtpfInspector
         {
             uint d0 = U32(body, 16 * i), d1 = U32(body, 16 * i + 4);
             ulong hash = BinaryPrimitives.ReadUInt64LittleEndian(body.AsSpan((int)(16 * nt + 8 * i), 8));
+            ulong loc = BinaryPrimitives.ReadUInt64LittleEndian(body.AsSpan(16 * i + 8, 8));
             tex.Add(new TtpfTexture(hash, (int)(d0 & 0x3FFF) + 1, (int)((d0 >> 14) & 0x3FFF) + 1, (int)((d1 >> 3) & 0x7F),
-                (int)((d1 >> 20) & 0xF), (int)((d1 >> 24) & 0xF), (int)((d1 >> 10) & 0x3FF) + 1, (int)(d0 >> 28)));
+                (int)((d1 >> 20) & 0xF), (int)((d1 >> 24) & 0xF), (int)((d1 >> 10) & 0x3FF) + 1, (int)(d0 >> 28),
+                loc, (long)(loc & 0x1FFFFF) * 0x1000 + 0x1000));
         }
         if (tex.Select(x => x.Hash).Distinct().Count() != tex.Count) warn.Add("Hash de texture en double dans l'index.");
         warn.Add("Le champ de mipmaps du descripteur peut sous-estimer le nombre réel : valeur brute affichée, non corrigée.");
-        return new TtpfStore(len, virt, chunks, tex, ver, warn);
+        var fixedTex = GtaAll.Textures.Decoding.TextureLayouts.Resolve(tex, virt);
+        return new TtpfStore(len, virt, chunks, fixedTex, ver, warn);
     }
 
     public static InspectionResult Inspect(string path, long fileLength)
@@ -106,13 +110,13 @@ public static class TtpfInspector
         f.Add(new(4, 4, "blocs (avec terminateur)", $"{st.Chunks.Count + 1}", Confidence.Inferred));
         f.Add(new(8, 4, "espace virtuel (tronqué à 32 bits)", $"0x{st.VirtualSizeField:X}", Confidence.Inferred));
         f.Add(new(-1, 4, "version de l'index ETPF", $"0x{st.EtpfVersion:X}", Confidence.Inferred));
-        f.Add(new(-1, 4, "textures", $"{st.Textures.Count:N0}", Confidence.Inferred));
+        f.Add(new(-1, 4, "textures", $"{st.Textures.Count}", Confidence.Inferred));
         foreach (var g in st.Chunks.GroupBy(c => c.Codec).OrderByDescending(g => g.Count()).Take(4))
-            f.Add(new(-1, 0, $"blocs {g.Key}", $"{g.Count():N0}", Confidence.Inferred));
+            f.Add(new(-1, 0, $"blocs {g.Key}", $"{g.Count()}", Confidence.Inferred));
         foreach (var g in st.Textures.GroupBy(x => x.FormatName).OrderByDescending(g => g.Count()).Take(5))
-            f.Add(new(-1, 0, $"textures {g.Key}", $"{g.Count():N0}", Confidence.Inferred));
+            f.Add(new(-1, 0, $"textures {g.Key}", $"{g.Count()}", Confidence.Inferred));
         foreach (var g in st.Textures.GroupBy(x => x.KindName).OrderByDescending(g => g.Count()).Take(3))
-            f.Add(new(-1, 0, $"type {g.Key}", $"{g.Count():N0}", Confidence.Inferred));
+            f.Add(new(-1, 0, $"type {g.Key}", $"{g.Count()}", Confidence.Inferred));
         n.AddRange(st.Warnings);
         n.Add("Index lu seulement : aucun pixel n'est décodé (ni BCPack, ni désentrelacement Gfx10). Pas de prévisualisation.");
         return new(f, n);

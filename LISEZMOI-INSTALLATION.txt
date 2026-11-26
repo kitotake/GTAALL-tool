@@ -1,14 +1,16 @@
 1. Dezippe. Ouvre PowerShell dans le dossier dezippe.
-2. .\appliquer.ps1 -Depot "D:\gtaa\GTAALL-tool"      (supprime les anciens fichiers deplaces, copie les nouveaux)
+2. .\appliquer.ps1 -Depot "C:\Users\ahmed\Pictures\gtaa\GTAALL-tool"
+   (supprime les anciens fichiers deplaces s'ils existent encore, puis copie les nouveaux)
    Si PowerShell refuse : Set-ExecutionPolicy -Scope Process Bypass
-3. cd D:\gtaa\GTAALL-tool
+3. cd C:\Users\ahmed\Pictures\gtaa\GTAALL-tool
    dotnet build GtaAllTool.sln
-   dotnet run --project tests/GtaAll.Core.SmokeTests      (attendu : TOUS LES TESTS PASSENT, 97 verifications)
-4. Non compile cote Claude : GtaAll.App (WPF, Windows seulement). Si une erreur apparait, envoie-la.
+   dotnet run --project tests/GtaAll.Core.SmokeTests      (attendu : TOUS LES TESTS PASSENT, 130 verifications)
+4. APERCU DES TEXTURES
+   - Application : dotnet run --project src\GtaAll.App  -> ouvrir le dossier -> choisir un .ttpf -> bouton "Apercu des textures"
+   - Ligne de commande (rapport / images) :
+       dotnet run --project src\GtaAll.Diag -- "D:\chemin\fichier.ttpf" --apercu "D:\sortie\apercu.html" --max 60
+       dotnet run --project src\GtaAll.Diag -- "D:\chemin\fichier.ttpf" --export "D:\sortie" --max 5
+       dotnet run --project src\GtaAll.Diag -- "D:\chemin\fichier.ttpf" --export "D:\sortie" --hash 0x00C1340E2237B894
+     (le dossier de sortie doit etre HORS du dossier des sources)
+5. Non compile cote Claude : GtaAll.App (WPF, Windows seulement). Si une erreur apparait, envoie-la.
 Rien n'est pousse sur GitHub : fais toi-meme git add / commit / push apres verification.
-
-OUTIL DE DIAGNOSTIC (rapport texte a copier-coller, lecture seule, n'ecrit rien) :
-  dotnet run --project src\GtaAll.Diag -- "D:\chemin\fichier.ttpf"
-  dotnet run --project src\GtaAll.Diag -- "D:\chemin\fichier.rpf" --rapide     (en-tete seulement, instantane)
-  dotnet run --project src\GtaAll.Diag -- "D:\chemin\fichier.rpf"              (avec indexation : long sur un gros .rpf)
-  dotnet run --project src\GtaAll.Diag -- "D:\dossier"                         (resume par type + un exemple de chaque)

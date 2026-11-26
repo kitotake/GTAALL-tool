@@ -59,8 +59,8 @@ public static class StructuredInspector
             }
             f.Add(new(-1, 0, "XML bien formé", "oui", Confidence.Confirmed));
             f.Add(new(-1, 0, "élément racine", root ?? "(aucun)", Confidence.Confirmed));
-            f.Add(new(-1, 0, "éléments", $"{elements:N0}", Confidence.Confirmed));
-            f.Add(new(-1, 0, "attributs", $"{attrs:N0}", Confidence.Confirmed));
+            f.Add(new(-1, 0, "éléments", $"{elements}", Confidence.Confirmed));
+            f.Add(new(-1, 0, "attributs", $"{attrs}", Confidence.Confirmed));
             f.Add(new(-1, 0, "profondeur max", $"{maxDepth}", Confidence.Confirmed));
         }
         catch (System.Xml.XmlException ex) { f.Add(new(-1, 0, "XML bien formé", "non", Confidence.Confirmed)); n.Add("XML invalide : " + ex.Message); }
