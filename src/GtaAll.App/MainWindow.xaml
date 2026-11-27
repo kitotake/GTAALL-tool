@@ -19,7 +19,8 @@
           <Button x:Name="IndexBtn" Content="Indexer l'archive" Click="Index_Click" IsEnabled="False"/>
           <Button x:Name="CancelBtn" Content="Annuler" Click="Cancel_Click" IsEnabled="False"/>
           <Button x:Name="ExportBtn" Content="Exporter l'entrée" Click="Export_Click" IsEnabled="False"/>
-          <Button x:Name="PreviewBtn" Content="Aperçu des textures" Click="Preview_Click" IsEnabled="False"/>
+          <Button x:Name="PreviewBtn" Content="Voir les textures" Click="Textures_Click" IsEnabled="False"/>
+          <Button x:Name="SheetBtn" Content="Planche HTML" Click="Preview_Click" IsEnabled="False"/>
         </StackPanel>
       </DockPanel>
     </Border>
@@ -35,7 +36,7 @@
       <Border Grid.Column="0" Style="{StaticResource PanelBorder}">
         <DockPanel>
           <TextBlock DockPanel.Dock="Top" Text="FICHIERS RECONNUS" Style="{StaticResource PanelTitle}"/>
-          <ListView x:Name="SourceList" SelectionChanged="Source_Changed">
+          <ListView x:Name="SourceList" SelectionChanged="Source_Changed" MouseDoubleClick="Source_DoubleClick">
             <ListView.View>
               <GridView>
                 <GridViewColumn Header="Fichier" DisplayMemberBinding="{Binding RelativePath}" Width="150"/>

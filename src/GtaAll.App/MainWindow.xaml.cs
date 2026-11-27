@@ -71,8 +71,8 @@ public partial class MainWindow : Window
     }
 
     private void ShowNotes() =>
-        NotesBox.Text = "Disponible : liste des fichiers, en-tête RPF9, indexation par flux zlib, recherche/filtre, export brut.\n\n" +
-                        "À venir (non implémenté) : TTPF/RDS5 et textures, audio, vidéo, modèles, données structurées.\n\n" +
+        NotesBox.Text = "Disponible : liste des fichiers, en-tête RPF9, indexation par flux zlib, recherche/filtre, export brut, visionneuse de textures TTPF (double-clic sur un .ttpf ou « Voir les textures »).\n\n" +
+                        "À venir (non implémenté) : textures en blocs BCPack, audio, vidéo, modèles, données structurées.\n\n" +
                         "Les noms de fichiers sont indisponibles : la table des matières RPF9 est chiffrée et GTAALL-tool ne tente pas de la déchiffrer.";
 
     private void UpdateWorkLabel()
@@ -284,10 +284,23 @@ public partial class MainWindow : Window
         IndexBtn.IsEnabled = _current?.CanIndex == true && !_indexing;
         CancelBtn.IsEnabled = _indexing;
         ExportBtn.IsEnabled = EntryGrid.SelectedItem is EntryRow && !_indexing;
-        PreviewBtn.IsEnabled = _current?.Type == SourceType.Ttpf && !_previewing;
+        PreviewBtn.IsEnabled = _current?.Type == SourceType.Ttpf;
+        SheetBtn.IsEnabled = _current?.Type == SourceType.Ttpf && !_previewing;
     }
 
     private bool _previewing;
+
+    /// <summary>Ouvre la visionneuse de textures (liste + image) pour le .ttpf sélectionné.</summary>
+    private void Textures_Click(object sender, RoutedEventArgs e)
+    {
+        if (_current?.Type != SourceType.Ttpf) return;
+        new TextureViewerWindow(_current.Path) { Owner = this }.Show();
+    }
+
+    private void Source_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (SourceList.SelectedItem is SourceRow r && r.F.Type == SourceType.Ttpf) Textures_Click(sender, e);
+    }
 
     /// <summary>Décode les premières textures du .ttpf sélectionné et ouvre une planche-contact HTML dans le navigateur (lecture seule ; fichier écrit dans %TEMP%).</summary>
     private async void Preview_Click(object sender, RoutedEventArgs e)

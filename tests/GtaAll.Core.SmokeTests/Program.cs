@@ -498,6 +498,70 @@ System.Globalization.CultureInfo.CurrentCulture = savedCulture;
         Check(TtpfImages.DecodeMip0(fsx, synthStore, straddle, out var p2) == null && p2 != null && p2.Contains("BCPack"), "texture dans un bloc BCPack : refus explicite, jamais d'image fausse");
         Check(TtpfImages.DecodeMip0(fsx, synthStore, synthStore.Textures[0] with { Kind = 4 }, out var p3) == null && p3 != null, "cube/tableau : refus explicite");
 
+        // Unavailable : mêmes verdicts que DecodeMip, sans lire de pixels
+        Check(TtpfImages.Unavailable(synthStore, synthStore.Textures[0]) == null, "Unavailable : texture en bloc zlib -> décodable (null)");
+        Check(TtpfImages.Unavailable(synthStore, straddle) is { } u1 && u1.Contains("BCPack"), "Unavailable : texture sur un bloc BCPack -> raison explicite");
+        Check(TtpfImages.Unavailable(synthStore, synthStore.Textures[0] with { Kind = 4 }) != null, "Unavailable : cube -> refus");
+        Check(TtpfImages.Unavailable(synthStore, synthStore.Textures[0], 5) == "mip inexistante", "Unavailable : mip hors limites -> mip inexistante");
+
+        // planche-contact : filtre par hash, champ de recherche, taille des vignettes
+        {
+            var all = TtpfContactSheet.Build(pth, 10);
+            var none = TtpfContactSheet.Build(pth, 10, default, 160, t => t.Hash == 0xDEADUL);
+            var one = TtpfContactSheet.Build(pth, 10, default, 512, t => t.Hash == 0x11UL);
+            Check(all.Shown == 1 && none.Shown == 0 && none.Failed == 0 && one.Shown == 1, "planche : le filtre par hash garde ou écarte la texture");
+            Check(all.Html.Contains("id=\"q\"") && one.Html.Contains("width:522px") && all.Html.Contains("width:170px"), "planche : champ de recherche et largeur selon --taille");
+        }
+
+        // liste de textures de l'interface : lignes, filtre, description
+        {
+            var rows = TextureCatalog.Build(synthStore);
+            var many = new List<TextureRow>
+            {
+                rows[0],
+                new TextureRow(1, synthStore.Textures[0] with { Hash = 0xABCD0123UL, Width = 1024, Height = 512, DxgiFormat = 98 }, null),
+                new TextureRow(2, synthStore.Textures[0] with { Hash = 0x77UL, Kind = 4 }, "type cube / 1 tranche(s) : non géré"),
+            };
+            Check(rows.Count == 1 && rows[0].Index == 0 && rows[0].Hash == "0000000000000011" && rows[0].Decodable && rows[0].State == "ok" && rows[0].SizeText == "8×8", "liste de textures : une ligne par texture, état ok");
+            Check(TextureCatalog.Filter(many, "", false).Count == 3 && TextureCatalog.Filter(many, null, false).Count == 3, "filtre : vide = tout");
+            Check(TextureCatalog.Filter(many, "abcd", false) is [{ Index: 1 }] && TextureCatalog.Filter(many, "0xABCD", false) is [{ Index: 1 }], "filtre : hash partiel, casse et préfixe 0x ignorés");
+            Check(TextureCatalog.Filter(many, "1024x512", false) is [{ Index: 1 }] && TextureCatalog.Filter(many, "1024×512", false) is [{ Index: 1 }], "filtre : taille avec x ou ×");
+            Check(TextureCatalog.Filter(many, "bc7 1024", false).Count == 1 && TextureCatalog.Filter(many, "bc7 zzz", false).Count == 0, "filtre : tous les mots doivent correspondre");
+            Check(TextureCatalog.Filter(many, "", true).Count == 2 && TextureCatalog.Filter(many, "cube", false) is [{ Index: 2 }], "filtre : « décodables seulement » écarte les refusées, l'état est cherchable");
+            var desc = TextureCatalog.Describe(rows[0]);
+            Check(desc.Contains("0000000000000011") && desc.Contains("8×8") && desc.Contains("R8") && desc.Contains("décodable") && TextureCatalog.Describe(many[2]).Contains("non géré"), "description : hash, taille, format et état");
+            var bgraSrc = new byte[] { 1, 2, 3, 4, 10, 20, 30, 0 };
+            Check(ImageFiles.RgbaToBgra(bgraSrc).SequenceEqual(new byte[] { 3, 2, 1, 4, 30, 20, 10, 0 }) && ImageFiles.RgbaToBgra(bgraSrc, true).SequenceEqual(new byte[] { 3, 2, 1, 255, 30, 20, 10, 255 }) && bgraSrc[0] == 1, "RGBA -> BGRA : canaux R/B échangés, alpha forçable, source intacte");
+        }
+
+        // export en lot : fichiers écrits, textures non décodables écartées, annulation, refus dans le dossier source
+        {
+            var rowsE = TextureCatalog.Build(synthStore);
+            var withBad = new List<TextureRow>(rowsE) { new TextureRow(7, synthStore.Textures[0] with { Hash = 0x99UL, Kind = 4 }, "type cube : non géré") };
+            var outE = Path.Combine(Path.GetTempPath(), "gtaall-export-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var seen = new List<ExportProgress>();
+                var rE = TextureExporter.ExportAll(pth, synthStore, withBad, outE, true, new Progress<ExportProgress>(seen.Add));
+                var nameE = TextureExporter.FileName(synthStore.Textures[0]);
+                Check(rE.Exported == 1 && rE.Failed == 0 && rE.Skipped == 1 && !rE.Cancelled && File.Exists(Path.Combine(outE, nameE + ".png")) && File.Exists(Path.Combine(outE, nameE + ".dds")), "export en lot : PNG + DDS écrits, texture non décodable écartée");
+                Check(File.ReadAllBytes(Path.Combine(outE, nameE + ".png")).AsSpan(0, 4).SequenceEqual(new byte[] { 0x89, 0x50, 0x4E, 0x47 }) && rE.Reasons.ContainsKey("type cube : non géré"), "export en lot : fichier PNG valide, raison du refus notée");
+                var outD = outE + "-sans-dds";
+                var rD = TextureExporter.ExportAll(pth, synthStore, rowsE, outD, false);
+                Check(rD.Exported == 1 && !File.Exists(Path.Combine(outD, nameE + ".dds")) && File.Exists(Path.Combine(outD, nameE + ".png")), "export en lot : sans DDS si demandé");
+                Directory.Delete(outD, true);
+                var cancelled = new CancellationTokenSource(); cancelled.Cancel();
+                var rC = TextureExporter.ExportAll(pth, synthStore, rowsE, outE + "-annule", true, null, cancelled.Token);
+                Check(rC.Cancelled && rC.Exported == 0, "export en lot : annulation propre, sans erreur");
+                Directory.Delete(outE + "-annule", true);
+                bool refused = false;
+                try { TextureExporter.ExportAll(pth, synthStore, rowsE, Path.Combine(Path.GetDirectoryName(pth)!, "sortie-interdite"), true); }
+                catch (Exception ex) when (ex is InvalidOperationException or IOException or UnauthorizedAccessException) { refused = true; }
+                Check(refused && !Directory.Exists(Path.Combine(Path.GetDirectoryName(pth)!, "sortie-interdite")), "export en lot : sortie dans le dossier source refusée, rien créé");
+            }
+            finally { if (Directory.Exists(outE)) Directory.Delete(outE, true); }
+        }
+
         // cache de blocs : mêmes résultats qu'avec lecture directe, y compris bloc BCPack et budget qui force l'éviction
         {
             var chunkCache = new TtpfChunkCache();

@@ -57,6 +57,18 @@ public static class ImageFiles
         return o;
     }
 
+    /// <summary>Copie des pixels RGBA en BGRA (ordre attendu par WPF, PixelFormats.Bgra32). <paramref name="opaque"/> force l'alpha à 255.</summary>
+    public static byte[] RgbaToBgra(byte[] rgba, bool opaque = false)
+    {
+        var o = new byte[rgba.Length];
+        for (int i = 0; i + 3 < rgba.Length; i += 4)
+        {
+            o[i] = rgba[i + 2]; o[i + 1] = rgba[i + 1]; o[i + 2] = rgba[i];
+            o[i + 3] = opaque ? (byte)255 : rgba[i + 3];
+        }
+        return o;
+    }
+
     /// <summary>Réduction par moyenne de blocs (aperçu). Conserve le rapport d'aspect, côté max = <paramref name="max"/>.</summary>
     public static (byte[] rgba, int w, int h) Thumbnail(byte[] rgba, int w, int h, int max)
     {

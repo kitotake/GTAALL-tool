@@ -9,7 +9,7 @@ public sealed record ContactSheet(string Html, int Shown, int Failed, IReadOnlyD
 /// <summary>Planche-contact HTML autonome (vignettes PNG intégrées) d'un magasin TTPF. Lecture seule sur la source.</summary>
 public static class TtpfContactSheet
 {
-    public static ContactSheet Build(string ttpfPath, int max, CancellationToken ct = default, int thumb = 160)
+    public static ContactSheet Build(string ttpfPath, int max, CancellationToken ct = default, int thumb = 160, Func<TtpfTexture, bool>? filter = null)
     {
         var st = TtpfInspector.Read(ttpfPath);
         using var fs = SafeFileAccess.OpenRead(ttpfPath);
@@ -19,6 +19,7 @@ public static class TtpfContactSheet
         var reasons = new Dictionary<string, int>();
         foreach (var t in st.Textures)
         {
+            if (filter != null && !filter(t)) continue;
             if (ok >= max) break;
             ct.ThrowIfCancellationRequested();
             var img = TtpfImages.DecodeMip0(fs, st, t, out var problem, cache);
@@ -31,10 +32,11 @@ public static class TtpfContactSheet
                  .Append(System.Net.WebUtility.HtmlEncode(t.FormatName)).Append("</figcaption></figure>\n");
         }
         var html = "<!doctype html><meta charset=\"utf-8\"><title>Aperçu TTPF</title><style>body{font:13px sans-serif;background:#2b2b2b;color:#ddd}" +
-                   "figure{display:inline-block;margin:6px;text-align:center;width:170px;vertical-align:top}" +
-                   "img{background:repeating-conic-gradient(#555 0 25%,#777 0 50%) 0 0/16px 16px}</style>" +
+                   $"figure{{display:inline-block;margin:6px;text-align:center;width:{thumb + 10}px;vertical-align:top}}" +
+                   "img{background:repeating-conic-gradient(#555 0 25%,#777 0 50%) 0 0/16px 16px}input{font:13px sans-serif;padding:4px;width:320px}</style>" +
                    $"<h3>{System.Net.WebUtility.HtmlEncode(Path.GetFileName(ttpfPath))} — {ok} textures affichées sur {st.Textures.Count} (mip 0, vignettes ≤ {thumb} px ; transparence en damier)" +
-                   (fail > 0 ? $" — {fail} non décodée(s)" : "") + "</h3>\n" + cards;
+                   (fail > 0 ? $" — {fail} non décodée(s)" : "") + "</h3>\n" +
+                   "<p><input id=\"q\" placeholder=\"filtrer : hash, format, taille…\" oninput=\"var v=this.value.toLowerCase();document.querySelectorAll('figure').forEach(function(f){f.style.display=f.textContent.toLowerCase().indexOf(v)<0?'none':'';})\"></p>\n" + cards;
         return new ContactSheet(html, ok, fail, reasons);
     }
 }

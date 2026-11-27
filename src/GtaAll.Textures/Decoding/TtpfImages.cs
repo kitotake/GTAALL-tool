@@ -55,6 +55,31 @@ public static class TtpfImages
         return ms.ToArray();
     }
 
+    /// <summary>
+    /// Dit, sans lire aucun pixel, pourquoi la mip <paramref name="mip"/> ne peut pas être décodée (null = décodable en principe :
+    /// type, format et blocs sont pris en charge). Mêmes règles que <see cref="DecodeMip"/>.
+    /// </summary>
+    public static string? Unavailable(TtpfStore st, TtpfTexture t, int mip = 0)
+    {
+        if (mip < 0 || mip >= t.Mips) return "mip inexistante";
+        if (t.Kind != 2 || t.Slices != 1) return $"type {t.KindName} / {t.Slices} tranche(s) : non géré";
+        var fmt = TextureLayouts.FromDxgi(t.DxgiFormat);
+        if (fmt is not (TexFmt.Bc1 or TexFmt.Bc3 or TexFmt.Bc4 or TexFmt.Bc5 or TexFmt.Bc7 or TexFmt.Rgba8 or TexFmt.Bgra8 or TexFmt.R8 or TexFmt.A8))
+            return $"format {t.FormatName} non décodé";
+        var layout = TextureLayouts.LayoutFor(t, t.Mips);
+        if (layout == null) return $"tuilage {t.TileMode} ou format {t.FormatName} non géré";
+        var (a, b) = layout.MipSpan(mip);
+        long start = t.Virt + a, end = t.Virt + b;
+        var ch = st.Chunks;
+        for (int i = 0; i + 1 < ch.Count; i++)
+        {
+            long v0 = ch[i].VirtualOffset, v1 = ch[i + 1].VirtualOffset;
+            if (v1 <= start || v0 >= end) continue;
+            if (ch[i].Flags is not (0x00 or 0x20)) return "en blocs BCPack (non décodés)";
+        }
+        return null;
+    }
+
     /// <summary>Décode la mip 0 (2D, une tranche). Retourne null et un message si la texture n'est pas prise en charge.</summary>
     public static DecodedTexture? DecodeMip0(Stream fs, TtpfStore st, TtpfTexture t, out string? problem, TtpfChunkCache? cache = null) => DecodeMip(fs, st, t, 0, out problem, cache);
 

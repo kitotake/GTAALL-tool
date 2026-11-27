@@ -5,7 +5,9 @@ using GtaAll.Core.Sources;
 // gtaall-diag : rapport TEXTE en lecture seule, à copier-coller. N'écrit rien, ne modifie aucune source.
 // Usage : gtaall-diag <fichier|dossier> [--rapide]     (--rapide : pour un .rpf, en-tête seulement, sans indexation)
 //         gtaall-diag <fichier.ttpf> --export <dossier> [--max N] [--hash HEX]   écrit des PNG + DDS (mip 0) dans un dossier
-//         gtaall-diag <fichier.ttpf> --apercu <page.html> [--max N]              planche-contact HTML (vignettes) à ouvrir dans un navigateur
+//         gtaall-diag <fichier.ttpf> --apercu <page.html> [--max N] [--hash HEX] [--taille PX]   planche-contact HTML (vignettes) à ouvrir dans un navigateur
+//                                                                                      (--hash : une seule texture ; --taille : côté max des vignettes, 160 par défaut ; ex. 1024 pour voir en grand)
+//         gtaall-diag <fichier.ttpf> --liste [--max N] [--hash HEX]              tableau des textures (hash, taille, format, décodable ou non) sans rien écrire
 foreach (IFormatModule m in new IFormatModule[] { new Rpf9Module(), new TtpfModule(), new AudioModule(), new VideoModule(), new StructuredDataModule() })
     ModuleRegistry.Default.Register(m);
 
@@ -13,11 +15,12 @@ System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalizat
 System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
 string? Opt(string name) { int i = Array.IndexOf(args, name); return i >= 0 && i + 1 < args.Length ? args[i + 1] : null; }
-var valueOpts = new[] { "--export", "--apercu", "--max", "--hash" };
+var valueOpts = new[] { "--export", "--apercu", "--max", "--hash", "--taille" };
 var a = args.Where((x, i) => !x.StartsWith("--") && !(i > 0 && valueOpts.Contains(args[i - 1]))).ToArray();
-bool fast = args.Contains("--rapide");
+bool fast = args.Contains("--rapide"), listOnly = args.Contains("--liste");
 string? exportDir = Opt("--export"), previewPage = Opt("--apercu"), hashOpt = Opt("--hash");
-int maxTex = int.TryParse(Opt("--max"), out var mx) ? mx : (previewPage != null ? 60 : 5);
+int maxTex = int.TryParse(Opt("--max"), out var mx) ? mx : (listOnly ? 100 : previewPage != null ? 60 : 5);
+int thumbPx = int.TryParse(Opt("--taille"), out var tp) ? Math.Clamp(tp, 32, 2048) : 160;
 if (a.Length != 1) { Console.WriteLine("Usage : gtaall-diag <fichier|dossier> [--rapide]"); return 2; }
 var target = a[0];
 
@@ -38,10 +41,10 @@ try
         return 0;
     }
     if (!File.Exists(target)) { Console.WriteLine("Introuvable : " + target); return 1; }
-    if (exportDir != null || previewPage != null)
+    if (exportDir != null || previewPage != null || listOnly)
     {
-        if (!target.EndsWith(".ttpf", StringComparison.OrdinalIgnoreCase)) { Console.WriteLine("--export / --apercu : seulement pour un fichier .ttpf"); return 2; }
-        return TextureTools.Run(target, exportDir, previewPage, maxTex, hashOpt);
+        if (!target.EndsWith(".ttpf", StringComparison.OrdinalIgnoreCase)) { Console.WriteLine("--export / --apercu / --liste : seulement pour un fichier .ttpf"); return 2; }
+        return TextureTools.Run(target, exportDir, previewPage, maxTex, hashOpt, thumbPx, listOnly);
     }
     Report(target, fast);
     return 0;
