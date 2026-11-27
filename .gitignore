@@ -5,3 +5,8 @@ obj/
 *.user
 *.suo
 TestResults/
+
+bin/
+obj/
+*.log
+structure.txt
