@@ -37,13 +37,14 @@ internal static class TextureTools
             foreach (var kv in sheet.Reasons.OrderByDescending(k => k.Value)) Console.WriteLine($"  non décodée x{kv.Value} : {kv.Key}");
             return sheet.Shown > 0 ? 0 : 1;
         }
+        var cache = new TtpfChunkCache();
         int ok = 0, fail = 0, tried = 0;
         var reasons = new Dictionary<string, int>();
         foreach (var t in list)
         {
             if (ok >= max) break;
             tried++;
-            var img = TtpfImages.DecodeMip0(fs, st, t, out var problem);
+            var img = TtpfImages.DecodeMip0(fs, st, t, out var problem, cache);
             string name = $"{t.Hash:X16}_{t.FormatName}_{t.Width}x{t.Height}".Replace(' ', '_');
             if (img == null)
             {

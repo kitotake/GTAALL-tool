@@ -12,7 +12,7 @@ public static class TtpfImages
     /// Lit [virt, virt+len) de l'espace virtuel. Blocs zlib décompressés, blocs « stockés » copiés. Les blocs BCPack ne sont pas décodés :
     /// leurs octets restent à zéro et sont comptés dans <paramref name="missing"/>.
     /// </summary>
-    public static byte[] ReadVirtual(Stream fs, TtpfStore st, long virt, long len, out long missing)
+    public static byte[] ReadVirtual(Stream fs, TtpfStore st, long virt, long len, out long missing, TtpfChunkCache? cache = null)
     {
         var res = new byte[len];
         missing = 0;
@@ -27,18 +27,13 @@ public static class TtpfImages
             if (flags is not (0x00 or 0x20)) { missing += e - s; continue; }
             long fileLen = ch[i + 1].FileOffset - ch[i].FileOffset - ch[i].Padding;
             if (fileLen <= 0 || fileLen > 256L << 20 || v1 - v0 > 1L << 30) { missing += e - s; continue; }
-            var raw = new byte[fileLen];
-            fs.Position = ch[i].FileOffset;
-            fs.ReadExactly(raw);
-            byte[] data;
-            if (flags == 0x20)
+            byte[]? data;
+            if (cache == null || !cache.TryGet(i, out data))
             {
-                using var z = new ZLibStream(new MemoryStream(raw), CompressionMode.Decompress);
-                var ms = new MemoryStream((int)(v1 - v0));
-                try { z.CopyTo(ms); } catch (InvalidDataException) { missing += e - s; continue; }
-                data = ms.ToArray();
+                data = LoadChunk(fs, ch[i].FileOffset, fileLen, flags, v1 - v0);
+                cache?.Put(i, data);
             }
-            else data = raw;
+            if (data == null) { missing += e - s; continue; }
             long from = s - v0, n = Math.Min(e - s, data.Length - from);
             if (n < 0) n = 0;
             Array.Copy(data, from, res, s - virt, n);
@@ -47,11 +42,24 @@ public static class TtpfImages
         return res;
     }
 
+    /// <summary>Lit un bloc du fichier et le décompresse si besoin. Retourne null si le flux zlib est invalide.</summary>
+    private static byte[]? LoadChunk(Stream fs, long fileOffset, long fileLen, int flags, long virtLen)
+    {
+        var raw = new byte[fileLen];
+        fs.Position = fileOffset;
+        fs.ReadExactly(raw);
+        if (flags != 0x20) return raw;
+        using var z = new ZLibStream(new MemoryStream(raw), CompressionMode.Decompress);
+        var ms = new MemoryStream((int)virtLen);
+        try { z.CopyTo(ms); } catch (InvalidDataException) { return null; }
+        return ms.ToArray();
+    }
+
     /// <summary>Décode la mip 0 (2D, une tranche). Retourne null et un message si la texture n'est pas prise en charge.</summary>
-    public static DecodedTexture? DecodeMip0(Stream fs, TtpfStore st, TtpfTexture t, out string? problem) => DecodeMip(fs, st, t, 0, out problem);
+    public static DecodedTexture? DecodeMip0(Stream fs, TtpfStore st, TtpfTexture t, out string? problem, TtpfChunkCache? cache = null) => DecodeMip(fs, st, t, 0, out problem, cache);
 
     /// <summary>Décode la mip <paramref name="mip"/> (0 = pleine résolution).</summary>
-    public static DecodedTexture? DecodeMip(Stream fs, TtpfStore st, TtpfTexture t, int mip, out string? problem)
+    public static DecodedTexture? DecodeMip(Stream fs, TtpfStore st, TtpfTexture t, int mip, out string? problem, TtpfChunkCache? cache = null)
     {
         problem = null;
         if (mip < 0 || mip >= t.Mips) { problem = "mip inexistante"; return null; }
@@ -61,7 +69,7 @@ public static class TtpfImages
         if (layout == null) { problem = $"tuilage {t.TileMode} ou format {t.FormatName} non géré"; return null; }
         var (a, b) = layout.MipSpan(mip);
         if (t.Virt + b > st.VirtualSizeField + (1L << 32) * 8) { problem = "adresse hors de l'espace virtuel"; return null; }
-        var data = ReadVirtual(fs, st, t.Virt + a, b - a, out long missing);
+        var data = ReadVirtual(fs, st, t.Virt + a, b - a, out long missing, cache);
         if (missing > 0) { problem = $"{missing:N0} octets en blocs BCPack (non décodés)"; return null; }
         int mw = Math.Max(1, t.Width >> mip), mh = Math.Max(1, t.Height >> mip);
         var el = layout.Untile(data, a, mip);

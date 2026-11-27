@@ -1,4 +1,15 @@
-Correctif : valeurs d'en-tete independantes de la langue de Windows (virgule decimale en francais).
-Copie ces 5 fichiers par-dessus ton depot (memes chemins), puis :
-  dotnet build GtaAllTool.sln
-  dotnet run --project tests/GtaAll.Core.SmokeTests      (attendu : TOUS LES TESTS PASSENT, 97 verifications)
+Correctif de vitesse pour les textures (GTAALL-tool)
+
+Copie les dossiers src et tests par-dessus ceux de ton depot (memes chemins), puis :
+
+  dotnet build GtaAllTool.sln -c Release
+  dotnet run -c Release --project tests\GtaAll.Core.SmokeTests
+
+Fichiers :
+  src/GtaAll.Textures/Decoding/TtpfChunkCache.cs   NOUVEAU : cache des blocs zlib decompresses
+  src/GtaAll.Textures/Decoding/TtpfImages.cs       ReadVirtual / DecodeMip acceptent un cache (parametre optionnel)
+  src/GtaAll.Textures/Decoding/TtpfContactSheet.cs utilise le cache (--apercu)
+  src/GtaAll.Diag/TextureTools.cs                  utilise le cache (--export)
+  tests/GtaAll.Core.SmokeTests/Program.cs          +4 tests du cache
+
+Aucune API existante ne change : l'appli WPF et les autres projets compilent sans modification.

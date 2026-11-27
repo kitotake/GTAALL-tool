@@ -13,6 +13,7 @@ public static class TtpfContactSheet
     {
         var st = TtpfInspector.Read(ttpfPath);
         using var fs = SafeFileAccess.OpenRead(ttpfPath);
+        var cache = new TtpfChunkCache();
         var cards = new StringBuilder();
         int ok = 0, fail = 0;
         var reasons = new Dictionary<string, int>();
@@ -20,7 +21,7 @@ public static class TtpfContactSheet
         {
             if (ok >= max) break;
             ct.ThrowIfCancellationRequested();
-            var img = TtpfImages.DecodeMip0(fs, st, t, out var problem);
+            var img = TtpfImages.DecodeMip0(fs, st, t, out var problem, cache);
             if (img == null) { fail++; reasons[problem ?? "?"] = reasons.GetValueOrDefault(problem ?? "?") + 1; continue; }
             ok++;
             var (rgba, tw, th) = ImageFiles.Thumbnail(img.Rgba, img.Width, img.Height, thumb);

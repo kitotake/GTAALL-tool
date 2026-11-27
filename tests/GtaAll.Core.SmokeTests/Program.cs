@@ -497,6 +497,22 @@ System.Globalization.CultureInfo.CurrentCulture = savedCulture;
         var straddle = synthStore.Textures[0] with { Virt = 0x1000 + 0x8000 - 16 };
         Check(TtpfImages.DecodeMip0(fsx, synthStore, straddle, out var p2) == null && p2 != null && p2.Contains("BCPack"), "texture dans un bloc BCPack : refus explicite, jamais d'image fausse");
         Check(TtpfImages.DecodeMip0(fsx, synthStore, synthStore.Textures[0] with { Kind = 4 }, out var p3) == null && p3 != null, "cube/tableau : refus explicite");
+
+        // cache de blocs : mêmes résultats qu'avec lecture directe, y compris bloc BCPack et budget qui force l'éviction
+        {
+            var chunkCache = new TtpfChunkCache();
+            var c1a = TtpfImages.ReadVirtual(fsx, synthStore, 0x1000 + 0x4000 + 5, 8, out long mc1, chunkCache);
+            var c1b = TtpfImages.ReadVirtual(fsx, synthStore, 0x1000 + 0x4000 + 5, 8, out long mc2, chunkCache);
+            Check(mc1 == 0 && mc2 == 0 && c1a.SequenceEqual(v) && c1b.SequenceEqual(v) && chunkCache.Hits == 1 && chunkCache.Misses == 1, "cache de blocs : 2e lecture servie par le cache, octets identiques");
+            var cb = TtpfImages.ReadVirtual(fsx, synthStore, 0x1000 + 0x8000, 16, out long mcb, chunkCache);
+            Check(mcb == 16 && cb.All(x => x == 0), "cache de blocs : bloc BCPack toujours compté comme manquant");
+            var none = new TtpfChunkCache(0);
+            var z1 = TtpfImages.ReadVirtual(fsx, synthStore, 0x1000 + 0x4000 + 5, 8, out long mn1, none);
+            var z2 = TtpfImages.ReadVirtual(fsx, synthStore, 0x1000 + 0x4000 + 5, 8, out long mn2, none);
+            Check(mn1 == 0 && mn2 == 0 && z1.SequenceEqual(v) && z2.SequenceEqual(v) && none.Hits == 0, "cache de blocs : budget nul -> aucune mémorisation, résultat correct");
+            var imgC = TtpfImages.DecodeMip0(fsx, synthStore, synthStore.Textures[0], out var probC, new TtpfChunkCache());
+            Check(imgC != null && probC == null && imgR != null && imgC.Rgba.SequenceEqual(imgR.Rgba), "cache de blocs : décodage d'une texture identique avec ou sans cache");
+        }
     }
 }
 
